@@ -1,28 +1,38 @@
 import { useCallback, useEffect, useState } from 'react';
-import './App.css'
-import Table, { TableField } from './Table';
+import './App.css';
+import DataTable from './DataTable';
+import { TableField } from './DataTable.interface';
+
+type User = {
+	id: string;
+	name: string;
+	username: string;
+}
 
 function App() {
+	// eslint-disable-next-line @typescript-eslint/no-explicit-any
 	const [users, setUsers] = useState<any[]>();
 	const removeUserFromTable = (id: string) => {
 		if (users) {
 			setUsers(
 				users.filter((user) => {
-					return user.id !== id;
+					return user?.id && user.id !== id;
 				})
 			);
 		}
 	};
-	const tableFields: TableField[] = [
-		{ key: "id", headerText: "ID" },
+	const tableFields: TableField<User>[] = [
+		{ key: "id", headerText: "ID", groupable: true },
 		{ key: "name", headerText: "Name", sortable: true, groupable: true },
 		{ key: "username", headerText: "Username", sortable: true, groupable: true },
 		{
-			renderComponent: (row: any) => {
+			renderComponent: (row) => {
 				return (
 					<button
 						onClick={() => {
-							removeUserFromTable(row.id);
+							if (row.id) {
+								removeUserFromTable(row.id);
+							}
 						}}
 					>
 						Delete {row.name}
@@ -36,22 +46,21 @@ function App() {
 
 	const fetchUserData = useCallback(async () => {
 		const res = await fetch("https://jsonplaceholder.typicode.com/users");
-		const users: any[] = await res.json();
-		const duplicatedUsers = [...users, ...users.map((user, i) => {
-			return { ...user, id: 11 + i }
+		const users: User[] = await res.json();
+		const duplicatedUsers: User[] = [...users, ...users.map((user, i) => {
+			return { ...user, id: String(11 + i) }
 		})]
-		console.log(duplicatedUsers);
-		
+
 		setUsers(duplicatedUsers);
 	}, []);
 
 	useEffect(() => {
 		fetchUserData();
-	}, []);
+	}, [fetchUserData]);
 
 	return (
 		<div className="App">
-			{users && <Table data={users} fields={tableFields} />}
+			{users && <DataTable data={users} fields={tableFields} />}
 		</div>
 	);
 }
