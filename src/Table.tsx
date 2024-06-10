@@ -1,98 +1,90 @@
 import ArrowDropDownIcon from '@mui/icons-material/ArrowDropDown';
 import ArrowDropUpIcon from '@mui/icons-material/ArrowDropUp';
 import { TableProps } from "./DataTable.interface";
-import GroupedCell from './components/GroupedCell';
+import GroupedCell from './components/GroupedTableRow';
 
 const Table = <T,>({ data, fields, onSort, onDragHeaderStart, isGrouped, depth = 0 }: TableProps<T>) => {
 
-    if (isGrouped && data[0].groupedBy) {
-        return <>
-            {data.map(row =>
-                <>
+    return <>
+        {
+            isGrouped && data[0].groupedBy ? <>
+                {data.map(row =>
                     <GroupedCell
                         colspan={fields.length + 1}
                         value={row.groupedBy?.value || ''}
                         depth={depth}
-                    />
-                    <Table
-                        data={row.groupedData || []}
+                        row={row}
                         fields={fields}
-                        isGrouped
-                        depth={depth + 1}
                     />
-                </>
-            )}
-        </>
-    }
-    return <table>
-        <thead>
-            <tr key={'table-headers'}>
-                {fields && fields.map((field) => (
-                    <th
-                        draggable={field.groupable}
-                        onDragStart={(ev) => {
-                            if (onDragHeaderStart) {
-                                onDragHeaderStart(field.key as keyof T, ev);
-                            }
-                        }}
-                        key={String(field.key)}
-                    >
-                        {field.headerText}
-                        {
-                            field.sortable &&
-                            (
-                                field.sorted === 'desc' ?
-                                    <ArrowDropUpIcon onClick={() => {
-                                        if (onSort) {
-                                            onSort(field.key as keyof T, 'asc');
+                )}
+            </>
+                :
+
+                <table>
+                    <thead>
+                        <tr key={'table-headers'}>
+                            {fields && fields.map((field) => (
+                                <th
+                                    draggable={field.groupable}
+                                    onDragStart={(ev) => {
+                                        if (onDragHeaderStart) {
+                                            onDragHeaderStart(field.key as keyof T, ev);
                                         }
-                                    }} />
-                                    :
-                                    <ArrowDropDownIcon
-                                        style={{ color: !field.sorted ? '#cdd1ce' : 'unset' }}
-                                        onClick={() => {
-                                            if (onSort) {
-                                                onSort(field.key as keyof T, 'asc');
-                                            }
-                                        }}
+                                    }}
+                                    key={String(field.key)}
+                                >
+                                    {field.headerText}
+                                    {
+                                        field.sortable &&
+                                        (
+                                            field.sorted === 'desc' ?
+                                                <ArrowDropUpIcon onClick={() => {
+                                                    if (onSort) {
+                                                        onSort(field.key as keyof T, 'asc');
+                                                    }
+                                                }} />
+                                                :
+                                                <ArrowDropDownIcon
+                                                    style={{ color: !field.sorted ? '#cdd1ce' : 'unset' }}
+                                                    onClick={() => {
+                                                        if (onSort) {
+                                                            onSort(field.key as keyof T, 'asc');
+                                                        }
+                                                    }}
+                                                />
+                                        )
+                                    }
+                                </th>
+                            ))}
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {data && data.map((row) => (
+                            row.groupedData ?
+                                <>
+                                    <GroupedCell
+                                        colspan={fields.length + 1}
+                                        value={row.groupedBy?.value || ''}
+                                        depth={depth}
+                                        row={row}
+                                        fields={fields}
                                     />
-                            )
-                        }
-                    </th>
-                ))}
-            </tr>
-        </thead>
-        <tbody>
-            {data && data.map((row) => (
-                row.groupedData ?
-                    <>
-                        <GroupedCell
-                            colspan={fields.length + 1}
-                            value={row.groupedBy?.value || ''}
-                            depth={depth}
-                        />
-                        <Table
-                            data={row.groupedData}
-                            fields={fields}
-                            isGrouped={!!row.groupedData[0]?.groupedBy || false}
-                            depth={depth + 1}
-                        />
-                    </>
-                    :
-                    <tr key={row.id}>
-                        {fields.map((field) => (
-                            <td key={String(field.key)}>
-                                {field.renderComponent
-                                    ? field.renderComponent(row)
-                                    : row[field.key as never]}
-                            </td>
+                                </>
+                                :
+                                <tr key={row.id}>
+                                    {fields.map((field) => (
+                                        <td key={String(field.key)} >
+                                            {field.renderComponent
+                                                ? field.renderComponent(row)
+                                                : row[field.key as never]}
+                                        </td>
+                                    ))}
+                                </tr>
                         ))}
-                    </tr>
-
-            ))}
-        </tbody>
-    </table>
-
+                    </tbody>
+                </table>
+        }
+    </>
 };
 
 

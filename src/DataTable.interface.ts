@@ -32,9 +32,12 @@ export type DataTableProps<T> = {
     fields: TableField<T>[];
 };
 
+export type DragHeaderStart<T> = (col: keyof T, ev: React.DragEvent<HTMLTableHeaderCellElement>) => void;
+export type SortTableEvent<T> = (col: keyof T, direction: SortDirection) => void;
+
 export type TableProps<T> = DataTableProps<T> & {
-    onSort?: (col: keyof T, direction: SortDirection) => void;
-    onDragHeaderStart?: (col: keyof T, ev: React.DragEvent<HTMLTableHeaderCellElement>) => void;
+    onSort?: SortTableEvent<T>;
+    onDragHeaderStart?: DragHeaderStart<T>;
     isGrouped?: boolean;
     depth?: number;
 }
