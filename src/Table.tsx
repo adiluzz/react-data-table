@@ -2,7 +2,22 @@ import ArrowDropDownIcon from '@mui/icons-material/ArrowDropDown';
 import ArrowDropUpIcon from '@mui/icons-material/ArrowDropUp';
 import { TableProps } from "./DataTable.interface";
 
-const Table = <T,>({ data, fields, onSort, onDragHeaderStart }: TableProps<T>) => {
+const Table = <T,>({ data, fields, onSort, onDragHeaderStart, isGrouped }: TableProps<T>) => {
+    console.log(data);
+    
+    if (isGrouped && data[0].groupedBy) {
+        const row = data[0];
+        console.log('row is :', row);
+
+        return <td colSpan={fields.length + 1}>
+            <div>{row.groupedBy?.value}</div>
+            <Table
+                data={row.groupedData || []}
+                fields={fields}
+                isGrouped
+            />
+        </td>
+    }
     return <table>
         <thead>
             <tr key={'table-headers'}>
@@ -22,7 +37,7 @@ const Table = <T,>({ data, fields, onSort, onDragHeaderStart }: TableProps<T>) =
                             (
                                 field.sorted === 'desc' ?
                                     <ArrowDropUpIcon onClick={() => {
-                                        if(onSort) {
+                                        if (onSort) {
                                             onSort(field.key as keyof T, 'asc');
                                         }
                                     }} />
@@ -30,7 +45,7 @@ const Table = <T,>({ data, fields, onSort, onDragHeaderStart }: TableProps<T>) =
                                     <ArrowDropDownIcon
                                         style={{ color: !field.sorted ? '#cdd1ce' : 'unset' }}
                                         onClick={() => {
-                                            if(onSort) {
+                                            if (onSort) {
                                                 onSort(field.key as keyof T, 'asc');
                                             }
                                         }}
@@ -51,6 +66,7 @@ const Table = <T,>({ data, fields, onSort, onDragHeaderStart }: TableProps<T>) =
                                 <Table
                                     data={row.groupedData}
                                     fields={fields}
+                                    isGrouped={!!row.groupedData[0].groupedBy || false}
                                 />
                             </td>
                             :
