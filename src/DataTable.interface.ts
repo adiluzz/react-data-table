@@ -36,7 +36,7 @@ export type TableProps<T> = DataTableProps<T> & {
     onSort?: (col: keyof T, direction: SortDirection) => void;
     onDragHeaderStart?: (col: keyof T, ev: React.DragEvent<HTMLTableHeaderCellElement>) => void;
     isGrouped?: boolean;
-
+    depth?: number;
 }
 
 export type GroupingHash<T> = {

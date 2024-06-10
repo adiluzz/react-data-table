@@ -1,22 +1,28 @@
 import ArrowDropDownIcon from '@mui/icons-material/ArrowDropDown';
 import ArrowDropUpIcon from '@mui/icons-material/ArrowDropUp';
 import { TableProps } from "./DataTable.interface";
+import GroupedCell from './components/GroupedCell';
 
-const Table = <T,>({ data, fields, onSort, onDragHeaderStart, isGrouped }: TableProps<T>) => {
-    console.log(data);
-    
+const Table = <T,>({ data, fields, onSort, onDragHeaderStart, isGrouped, depth = 0 }: TableProps<T>) => {
+
     if (isGrouped && data[0].groupedBy) {
-        const row = data[0];
-        console.log('row is :', row);
-
-        return <td colSpan={fields.length + 1}>
-            <div>{row.groupedBy?.value}</div>
-            <Table
-                data={row.groupedData || []}
-                fields={fields}
-                isGrouped
-            />
-        </td>
+        return <>
+            {data.map(row =>
+                <>
+                    <GroupedCell
+                        colspan={fields.length + 1}
+                        value={row.groupedBy?.value || ''}
+                        depth={depth}
+                    />
+                    <Table
+                        data={row.groupedData || []}
+                        fields={fields}
+                        isGrouped
+                        depth={depth + 1}
+                    />
+                </>
+            )}
+        </>
     }
     return <table>
         <thead>
@@ -58,27 +64,31 @@ const Table = <T,>({ data, fields, onSort, onDragHeaderStart, isGrouped }: Table
         </thead>
         <tbody>
             {data && data.map((row) => (
-                <tr key={row.id}>
-                    {
-                        row.groupedData ?
-                            <td colSpan={fields.length + 1}>
-                                <div>{row.groupedBy?.value}</div>
-                                <Table
-                                    data={row.groupedData}
-                                    fields={fields}
-                                    isGrouped={!!row.groupedData[0].groupedBy || false}
-                                />
+                row.groupedData ?
+                    <>
+                        <GroupedCell
+                            colspan={fields.length + 1}
+                            value={row.groupedBy?.value || ''}
+                            depth={depth}
+                        />
+                        <Table
+                            data={row.groupedData}
+                            fields={fields}
+                            isGrouped={!!row.groupedData[0]?.groupedBy || false}
+                            depth={depth + 1}
+                        />
+                    </>
+                    :
+                    <tr key={row.id}>
+                        {fields.map((field) => (
+                            <td key={String(field.key)}>
+                                {field.renderComponent
+                                    ? field.renderComponent(row)
+                                    : row[field.key as never]}
                             </td>
-                            :
-                            fields.map((field) => (
-                                <td key={String(field.key)}>
-                                    {field.renderComponent
-                                        ? field.renderComponent(row)
-                                        : row[field.key as never]}
-                                </td>
-                            ))
-                    }
-                </tr>
+                        ))}
+                    </tr>
+
             ))}
         </tbody>
     </table>
