@@ -22,7 +22,7 @@ function App() {
 		}
 	};
 	const tableFields: TableField<User>[] = [
-		{ key: "id", headerText: "ID", groupable: true },
+		{ key: "id", headerText: "ID", sortable: true, groupable: true },
 		{ key: "name", headerText: "Name", sortable: true, groupable: true },
 		{ key: "username", headerText: "Username", sortable: true, groupable: true },
 		{
@@ -60,7 +60,7 @@ function App() {
 
 	return (
 		<div className="App">
-			{users && <DataTable data={users} fields={tableFields} />}
+			{users && <DataTable<User> data={users} fields={tableFields} />}
 		</div>
 	);
 }

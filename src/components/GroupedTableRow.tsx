@@ -1,33 +1,71 @@
+import { useState } from "react";
+import styled from "styled-components";
+import { useDataTableContext } from "../DataTable.context";
 import { GroupedRow, TableField } from "../DataTable.interface";
-import Table from "../Table";
+import Table from "./Table";
+import ConditionalArrow from "./common/ConditionalArrow";
+
+
+const TableRowWrapper = styled.tr({
+    width: '100%',
+    textAlign: 'left',
+});
+
+
+const FullWidthTableDetail = styled.td`
+    display: table-cell;
+`;
+
+const GroupedCell = styled.div({
+    display: 'flex',
+    flexDirection: 'row'
+});
+
+const GroupedIndentation = styled.span<{ $indentation: number }>(({ $indentation }) => {
+    return {
+        width: 50 * $indentation,
+        display: 'inline-block',
+        height: 10
+    }
+});
+
 
 type GroupedTableRowProps<T> = {
     row: GroupedRow<T>;
     value: string;
-    colspan: number;
     depth: number;
-    fields: TableField<T>[]
+    fields: TableField<T>[];
 }
 
 const GroupedTableRow = <T,>(
-    { row, value, colspan, depth, fields }: GroupedTableRowProps<T>) => {
+    { row, value, depth, fields }: GroupedTableRowProps<T>) => {
+    const [open, setOpen] = useState<boolean>(false);
+    const ctx = useDataTableContext();
     return <>
-        <tr>
-            <td align='center' colSpan={colspan} style={{ textAlign: 'left', display: 'flex' }}>
-                {
-                    new Array(depth).fill(' ').map((_filled, i) =>
-                        <div key={i} style={{ width: '50px' }}></div>
-                    )
-                }
-                <div>{value}</div>
-            </td>
-        </tr>
-        <Table
-            data={row.groupedData || []}
-            fields={fields}
-            isGrouped
-            depth={depth + 1}
-        />
+        <TableRowWrapper onClick={() => {
+            setOpen(!open);
+        }}>
+            <FullWidthTableDetail colSpan={ctx?.columns?.length}>
+                <GroupedCell>
+                    <GroupedIndentation $indentation={depth} />
+                    <div>{value}</div>
+                    <ConditionalArrow condition={open} />
+                </GroupedCell>
+            </FullWidthTableDetail>
+        </TableRowWrapper >
+        <TableRowWrapper>
+            <FullWidthTableDetail colSpan={ctx?.columns?.length}>
+                <div className={`collapsible ${open ? 'open' : ''}`}>
+                    <GroupedIndentation $indentation={depth} />
+                    <Table
+                        data={row.groupedData || []}
+                        fields={fields}
+                        renderHeaders={(ctx?.tableGroupings?.length || -1) - 1 === depth}
+                        depth={depth + 1}
+                    />
+                </div>
+            </FullWidthTableDetail>
+        </TableRowWrapper>
     </>
 };
 
