@@ -1,6 +1,6 @@
 export type SortDirection = 'asc' | 'desc';
 
-export interface TableField<T> {
+export interface TableField<T = object> {
     key: keyof T | string | number | symbol;
     renderComponent?: (row: BaseRow<T>) => JSX.Element;
     headerText: string;
@@ -18,7 +18,8 @@ export type GroupedRow<T> = {
 };
 
 export type NonGroupedRow<T> = {
-    [key in keyof T]?: never;
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    [key in keyof T]?: any;
 } & {
     id?: string;
 }
@@ -30,6 +31,8 @@ export type Grouping<T> = keyof BaseRow<T> | string | number | symbol;
 export type DataTableProps<T> = {
     data: BaseRow<T>[];
     fields: TableField<T>[];
+    renderHeaders?: boolean;
+    depth?: number;
 };
 
 export type DragHeaderStart<T> = (col: keyof T, ev: React.DragEvent<HTMLTableHeaderCellElement>) => void;
@@ -43,5 +46,3 @@ export type TableProps<T> = DataTableProps<T> & {
 export type GroupingHash<T> = {
     [key: string]: BaseRow<T>[];
 };
-
-

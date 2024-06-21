@@ -2,8 +2,9 @@ import { useState } from "react";
 import styled from "styled-components";
 import { useDataTableContext } from "../DataTable.context";
 import { GroupedRow, TableField } from "../DataTable.interface";
-import Table from "./Table";
 import ConditionalArrow from "./common/ConditionalArrow";
+import Table from "./modules/table/Table";
+import { useTableContext } from "./modules/table/Table.context";
 
 
 const TableRowWrapper = styled.tr({
@@ -41,6 +42,7 @@ const GroupedTableRow = <T,>(
     { row, value, depth, fields }: GroupedTableRowProps<T>) => {
     const [open, setOpen] = useState<boolean>(false);
     const ctx = useDataTableContext();
+    const tableContext = useTableContext();
     return <>
         <TableRowWrapper onClick={() => {
             setOpen(!open);
@@ -48,14 +50,14 @@ const GroupedTableRow = <T,>(
             <FullWidthTableDetail colSpan={ctx?.columns?.length}>
                 <GroupedCell>
                     <GroupedIndentation $indentation={depth} />
-                    <div>{value}</div>
+                    <div>{value} <strong>({row.groupedData?.length})</strong></div>
                     <ConditionalArrow condition={open} />
                 </GroupedCell>
             </FullWidthTableDetail>
         </TableRowWrapper >
         <TableRowWrapper>
-            <FullWidthTableDetail colSpan={ctx?.columns?.length}>
-                <div className={`collapsible ${open ? 'open' : ''}`}>
+            <FullWidthTableDetail colSpan={tableContext?.columns?.length}>
+                <div className={`collapsible ${open && 'open'}`}>
                     <GroupedIndentation $indentation={depth} />
                     <Table
                         data={row.groupedData || []}

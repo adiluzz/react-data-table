@@ -2,13 +2,13 @@ import ArrowDropDownIcon from '@mui/icons-material/ArrowDropDown';
 import ArrowDropUpIcon from '@mui/icons-material/ArrowDropUp';
 import SortIcon from '@mui/icons-material/Sort';
 import { FC } from "react";
-import { useDataTableContext } from "../DataTable.context";
 import { SortDirection } from '../DataTable.interface';
+import { useTableContext } from './modules/table/Table.context';
 
 const TableHeaders: FC = <T,>() => {
-    const ctx = useDataTableContext<T>();
+    const ctx = useTableContext<T>();
     const sortData = (field: keyof T, direction: SortDirection) => {
-        ctx?.setTableData && ctx?.setTableData((table) => table?.sort((a, b) => {
+        const sortedData = ctx?.tableData?.sort((a, b) => {
             let ret;
             const aField = a[field];
             const bField = b[field];
@@ -19,7 +19,11 @@ const TableHeaders: FC = <T,>() => {
                 ret = aField ? 1 : bField ? -1 : 0;
             }
             return direction === 'asc' ? ret : -ret;
-        }));
+        });
+        
+        if(ctx?.setTableData && sortedData) {
+            ctx?.setTableData(sortedData);
+        }
         ctx?.setColumns && ctx?.setColumns(cols => cols?.map((col) => {
             col.sorted = col.key === field ? direction : undefined;
             return col;
