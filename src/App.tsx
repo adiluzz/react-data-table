@@ -1,4 +1,5 @@
 import { useCallback, useEffect, useState } from 'react';
+import mockData from '../tests/MOCK_DATA.json';
 import './App.css';
 import DataTable from './DataTable';
 import { TableField } from './DataTable.interface';
@@ -9,9 +10,18 @@ type User = {
 	username: string;
 }
 
+type MockData = {
+	id: string;
+	first_name: string;
+	last_name: string;
+	email: string;
+	gender: string;
+	ip_address: string;
+
+}
+
 function App() {
-	// eslint-disable-next-line @typescript-eslint/no-explicit-any
-	const [users, setUsers] = useState<any[]>();
+	const [users, setUsers] = useState<User[]>();
 	const removeUserFromTable = (id: string) => {
 		if (users) {
 			setUsers(
@@ -21,6 +31,15 @@ function App() {
 			);
 		}
 	};
+	const mockTableFields: TableField<MockData>[] = [
+		{ key: "id", headerText: "ID", sortable: true, groupable: true },
+		{ key: "first_name", headerText: "First Name", sortable: true, groupable: true },
+		{ key: "last_name", headerText: "last_name", sortable: true, groupable: true },
+		{ key: "email", headerText: "email", sortable: true, groupable: true },
+		{ key: "gender", headerText: "gender", sortable: true, groupable: true },
+		{ key: "ip_address", headerText: "ip_address", sortable: true, groupable: true },
+
+	];
 	const tableFields: TableField<User>[] = [
 		{ key: "id", headerText: "ID", sortable: true, groupable: true },
 		{ key: "name", headerText: "Name", sortable: true, groupable: true },
@@ -54,13 +73,15 @@ function App() {
 		setUsers(duplicatedUsers);
 	}, []);
 
+
 	useEffect(() => {
 		fetchUserData();
 	}, [fetchUserData]);
 
 	return (
 		<div className="App">
-			{users && <DataTable<User> data={users} fields={tableFields} />}
+			{mockData && <DataTable data={mockData as unknown as MockData[]} fields={mockTableFields} />}
+			{/* {users && <DataTable data={users} fields={tableFields} />} */}
 		</div>
 	);
 }

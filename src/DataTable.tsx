@@ -3,7 +3,7 @@ import DataTableContext from './DataTable.context';
 import { BaseRow, DataTableProps, Grouping, TableField } from './DataTable.interface';
 import { groupData } from './DataTable.utils';
 import GroupingPanel from './components/GroupingPanel';
-import Table from './components/Table';
+import Table from './components/modules/table/Table';
 
 
 

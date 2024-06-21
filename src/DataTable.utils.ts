@@ -6,7 +6,7 @@ export function hasGroupableFields(fields?: TableField<unknown>[]): boolean {
 
 export function groupData<T>(data: BaseRow<T>[], field: Grouping<T>[], groupingCount: number = 0): BaseRow<T>[] {
     const dataByKey = data.reduce((prev, cur) => {
-        const curField = cur[field[groupingCount]];
+        const curField = cur[field[groupingCount] as keyof BaseRow<T>];
         if (curField && prev[curField]) {
             prev[curField].push(cur);
         } else if (curField) {
