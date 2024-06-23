@@ -29,7 +29,6 @@ const TableContext = getTableContext<T>();
     const setTableDataAction = useCallback((rows: BaseRow<T>[]) => {
         setTableData(rows);
         const start = page * pageSize;
-
         const end = start + pageSize;
         const paginatedData = rows.slice(start, end);
         setCurData(paginatedData);

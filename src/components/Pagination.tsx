@@ -27,7 +27,10 @@ const Pagination: FC = () => {
             pagesArrayLength = Math.ceil(ctx?.tableData?.length / ctx?.pageSize);
         }
         const pagesArray = new Array(pagesArrayLength).fill('')
-            .map((_val, index) => index)
+            .map((_val, index) => index);
+        if (ctx?.page && (pagesArray.length < ctx?.page) && ctx?.setPage) {
+            ctx?.setPage(0);
+        }
         return pagesArray;
     }, [ctx]);
 
@@ -38,10 +41,11 @@ const Pagination: FC = () => {
                     ctx?.setPageSize(Number(ev.target.value));
                 }
             }}
+            value={ctx?.pageSize}
         >
             {
                 defaultPageSizeOptions.map(option =>
-                    <option selected={ctx?.pageSize === option} value={option} key={option}>{option}</option>
+                    <option value={option} key={option}>{option}</option>
                 )
             }
         </select>
