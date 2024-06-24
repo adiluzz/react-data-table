@@ -1,19 +1,27 @@
+import ArrowBackIosNewIcon from '@mui/icons-material/ArrowBackIosNew';
+import ArrowForwardIosIcon from '@mui/icons-material/ArrowForwardIos';
+import FirstPageIcon from '@mui/icons-material/FirstPage';
+import LastPageIcon from '@mui/icons-material/LastPage';
 import { FC, useMemo, useState } from "react";
 import styled from "styled-components";
 import { defaultPageSizeOptions } from "../DataTable.const";
 import { useTableContext } from "./modules/table/Table.context";
 
-const PageNumber = styled.div<{ $isCurrentPage: boolean }>(({ $isCurrentPage }) => {
+const PageNumber = styled.div<{ $isCurrentPage?: boolean }>(({ $isCurrentPage }) => {
     return {
         height: 50,
         width: 50,
-        backgroundColor: $isCurrentPage ? 'blue' : 'red',
+        // backgroundColor: $isCurrentPage ? 'blue' : 'red',
+        display: 'flex',
+        justifyContent: 'center',
+        alignItems: 'center',
+        border: `1px solid ${$isCurrentPage ? 'black' : 'grey'}`
     }
 });
 
 const PaginationWrapper = styled.div({
     display: 'flex',
-})
+});
 
 
 const Pagination: FC = () => {
@@ -57,14 +65,24 @@ const Pagination: FC = () => {
             {
 
                 pages.length > maxPages &&
-                <button
-                    onClick={() => {
-                        setPagesDisplayed(pagesDisplayed - 1)
-                    }}
-                    disabled={pagesDisplayed <= 0}
-                >
-                    Back
-                </button>
+                <>
+                    <PageNumber>
+                        <FirstPageIcon
+                            onClick={() => {
+                                setPagesDisplayed(0);
+                            }}
+                        />
+                    </PageNumber>
+                    <PageNumber>
+                        <ArrowBackIosNewIcon
+                            onClick={() => {
+                                if (!(pagesDisplayed <= 0)) {
+                                    setPagesDisplayed(pagesDisplayed - 1)
+                                }
+                            }}
+                        />
+                    </PageNumber>
+                </>
             }
             {pages && pages.slice(pagesDisplayed, pagesDisplayed + maxPages).map((page, i) =>
                 <PageNumber
@@ -80,15 +98,26 @@ const Pagination: FC = () => {
             )}
             {
                 pages.length > maxPages &&
-                <button
-                    onClick={() => {
-                        setPagesDisplayed(pagesDisplayed + 1)
-                    }}
-                    disabled={pagesDisplayed + maxPages >= pages.length}
-                >
-                    Next
-                </button>
+                <>
+                    <PageNumber>
+                        <ArrowForwardIosIcon
+                            onClick={() => {
+                                if (!(pagesDisplayed + maxPages >= pages.length)) {
+                                    setPagesDisplayed(pagesDisplayed + 1)
+                                }
+                            }}
+                        />
+                    </PageNumber>
+                    <PageNumber>
+                        <LastPageIcon
+                            onClick={() => {
+                                setPagesDisplayed(pages.length - maxPages)
+                            }}
+                        />
+                    </PageNumber>
+                </>
             }
+
         </PaginationWrapper>
     </div>
 };

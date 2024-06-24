@@ -2,6 +2,7 @@ import { useState } from "react";
 import styled from "styled-components";
 import { useDataTableContext } from "../DataTable.context";
 import { GroupedRow, TableField } from "../DataTable.interface";
+import { Collapsible } from "./common/Collapsible";
 import ConditionalArrow from "./common/ConditionalArrow";
 import Table from "./modules/table/Table";
 import { useTableContext } from "./modules/table/Table.context";
@@ -57,7 +58,7 @@ const GroupedTableRow = <T,>(
         </TableRowWrapper >
         <TableRowWrapper>
             <FullWidthTableDetail colSpan={tableContext?.columns?.length}>
-                <div className={`collapsible ${open && 'open'}`}>
+                <Collapsible $open={open}>
                     <GroupedIndentation $indentation={depth} />
                     <Table
                         data={row.groupedData || []}
@@ -65,7 +66,7 @@ const GroupedTableRow = <T,>(
                         renderHeaders={(ctx?.tableGroupings?.length || -1) - 1 === depth}
                         depth={depth + 1}
                     />
-                </div>
+                </Collapsible>
             </FullWidthTableDetail>
         </TableRowWrapper>
     </>
