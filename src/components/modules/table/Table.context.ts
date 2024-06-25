@@ -5,12 +5,12 @@ import { BaseRow, TableField } from "../../../DataTable.interface";
 type TableState<T = Record<string, never>> = {
     tableData?: BaseRow<T>[];
     setTableData?: (rows: BaseRow<T>[]) => void;
-    columns?: TableField<T>[];
-    setColumns?: React.Dispatch<React.SetStateAction<TableField<T>[]>>;
+    columns: TableField<T>[];
+    setColumns: React.Dispatch<React.SetStateAction<TableField<T>[]>>;
     page: number;
-    setPage?: React.Dispatch<React.SetStateAction<number>>;
+    setPage: React.Dispatch<React.SetStateAction<number>>;
     pageSize: number;
-    setPageSize?: React.Dispatch<React.SetStateAction<number>>;
+    setPageSize: React.Dispatch<React.SetStateAction<number>>;
 }
 
 const TableContext = createContext<TableState<unknown> | null>(null);
