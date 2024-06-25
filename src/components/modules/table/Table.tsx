@@ -7,7 +7,7 @@ import TableConditional from '../../TableConditional';
 import { getTableContext } from "./Table.context";
 
 const Table = <T,>({ data, fields, renderHeaders, depth = 0 }: TableProps<T>) => {
-const TableContext = getTableContext<T>();
+    const TableContext = getTableContext<T>();
     const [tableData, setTableData] = useState<BaseRow<T>[]>(data);
     const [curData, setCurData] = useState<BaseRow<T>[]>();
     const [columns, setColumns] = useState<TableField<T>[]>(fields);
@@ -15,16 +15,6 @@ const TableContext = getTableContext<T>();
 
     const [page, setPage] = useState<number>(0);
     const [pageSize, setPageSize] = useState<number>(defaultPageSizeOptions[0]);
-
-    // const curData = useMemo(() => {
-    //     const start = page * pageSize;
-    //     console.log('start is :', start);
-
-    //     const end = start + pageSize;
-    //     console.log('end is :', end);
-
-    //     return tableData.slice(start, end);
-    // }, [tableData, page, pageSize]);
 
     const setTableDataAction = useCallback((rows: BaseRow<T>[]) => {
         setTableData(rows);
@@ -75,7 +65,7 @@ const TableContext = getTableContext<T>();
             ))}
 
         </TableConditional>
-        <Pagination />
+        <Pagination<T> />
     </TableContext.Provider>
 };
 

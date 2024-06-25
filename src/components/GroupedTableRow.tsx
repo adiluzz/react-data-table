@@ -2,6 +2,7 @@ import { useState } from "react";
 import styled from "styled-components";
 import { useDataTableContext } from "../DataTable.context";
 import { GroupedRow, TableField } from "../DataTable.interface";
+import { numberWithCommas } from "../DataTable.utils";
 import { Collapsible } from "./common/Collapsible";
 import ConditionalArrow from "./common/ConditionalArrow";
 import Table from "./modules/table/Table";
@@ -51,7 +52,7 @@ const GroupedTableRow = <T,>(
             <FullWidthTableDetail colSpan={ctx?.columns?.length}>
                 <GroupedCell>
                     <GroupedIndentation $indentation={depth} />
-                    <div>{value} <strong>({row.groupedData?.length})</strong></div>
+                    <div>{value} <strong>({numberWithCommas(row.groupedData?.length as number)})</strong></div>
                     <ConditionalArrow condition={open} />
                 </GroupedCell>
             </FullWidthTableDetail>
