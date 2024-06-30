@@ -3,7 +3,7 @@ import ArrowDropUpIcon from '@mui/icons-material/ArrowDropUp';
 import SortIcon from '@mui/icons-material/Sort';
 import { FC } from "react";
 import { SortDirection } from '../../DataTable.interface';
-import { TableHeaderWrapper } from './Table.components';
+import { TableHeaderIconWrapper, TableHeaderTextWrapper, TableHeaderWrapper } from './Table.components';
 import { useTableContext } from './Table.context';
 
 
@@ -40,29 +40,34 @@ const TableHeaders: FC = <T,>() => {
                     return ev.dataTransfer.setData("text", field.key as string);
                 }}
                 key={String(field.key)}
+                $draggable={!!field.groupable}
             >
-                {field.headerText}
+                <TableHeaderTextWrapper>
+                    {field.headerText}
+                </TableHeaderTextWrapper>
                 {
                     field.sortable &&
-                    (
-                        field.sorted === 'desc' ?
-                            <ArrowDropUpIcon onClick={() => {
-                                sortData(field.key as keyof T, 'asc');
-                            }} />
-                            : field.sorted === 'asc' ?
-                                <ArrowDropDownIcon
-                                    style={{ color: !field.sorted ? '#cdd1ce' : 'unset' }}
-                                    onClick={() => {
-                                        sortData(field.key as keyof T, 'desc');
-                                    }}
-                                />
-                                :
-                                <SortIcon
-                                    onClick={() => {
-                                        sortData(field.key as keyof T, 'asc');
-                                    }}
-                                />
-                    )
+                    <TableHeaderIconWrapper>
+                        {(
+                            field.sorted === 'desc' ?
+                                <ArrowDropUpIcon onClick={() => {
+                                    sortData(field.key as keyof T, 'asc');
+                                }} />
+                                : field.sorted === 'asc' ?
+                                    <ArrowDropDownIcon
+                                        style={{ color: !field.sorted ? '#cdd1ce' : 'unset' }}
+                                        onClick={() => {
+                                            sortData(field.key as keyof T, 'desc');
+                                        }}
+                                    />
+                                    :
+                                    <SortIcon
+                                        onClick={() => {
+                                            sortData(field.key as keyof T, 'asc');
+                                        }}
+                                    />
+                        )}
+                    </TableHeaderIconWrapper>
                 }
             </TableHeaderWrapper>
         ))}

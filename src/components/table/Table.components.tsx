@@ -1,5 +1,6 @@
 import styled from "styled-components";
 import { RowBorder } from "../common/classes";
+import { Clickable } from "../common/classes.const";
 
 export const TableOverflowContainer = styled.div({
     overflowX: 'auto',
@@ -38,6 +39,19 @@ export const TableWrapper = styled.table({
     borderCollapse: 'collapse'
 });
 
-export const TableHeaderWrapper = styled.th({
-    whiteSpace: 'nowrap'
+export const TableHeaderWrapper = styled.th<{ $draggable: boolean }>(({$draggable}) => {
+    return {
+        whiteSpace: 'nowrap',
+        cursor: $draggable ? 'grab' : 'auto'
+    }
 });
+
+export const TableHeaderIconWrapper = styled.span({
+    ...Clickable,
+    verticalAlign: 'middle',
+});
+
+
+export const TableHeaderTextWrapper = styled.span({
+    marginRight: 5,
+})
