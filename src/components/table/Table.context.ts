@@ -1,5 +1,5 @@
 import { createContext, useContext } from "react";
-import { BaseRow, TableField } from "../../../DataTable.interface";
+import { BaseRow, TableField } from "../../DataTable.interface";
 
 
 type TableState<T = Record<string, never>> = {

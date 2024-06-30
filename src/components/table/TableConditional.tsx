@@ -1,11 +1,6 @@
 import { FC, ReactNode } from "react";
-import styled from "styled-components";
+import { TableWrapper } from "./Table.components";
 import TableHeaders from "./TableHeaders";
-
-const TableWrapper = styled.table({
-    width: '100%',
-});
-
 
 
 type TableConditionalProps = {

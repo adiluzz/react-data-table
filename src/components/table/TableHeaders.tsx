@@ -2,8 +2,10 @@ import ArrowDropDownIcon from '@mui/icons-material/ArrowDropDown';
 import ArrowDropUpIcon from '@mui/icons-material/ArrowDropUp';
 import SortIcon from '@mui/icons-material/Sort';
 import { FC } from "react";
-import { SortDirection } from '../DataTable.interface';
-import { useTableContext } from './modules/table/Table.context';
+import { SortDirection } from '../../DataTable.interface';
+import { TableHeaderWrapper } from './Table.components';
+import { useTableContext } from './Table.context';
+
 
 const TableHeaders: FC = <T,>() => {
     const ctx = useTableContext<T>();
@@ -20,8 +22,8 @@ const TableHeaders: FC = <T,>() => {
             }
             return direction === 'asc' ? ret : -ret;
         });
-        
-        if(ctx?.setTableData && sortedData) {
+
+        if (ctx?.setTableData && sortedData) {
             ctx?.setTableData(sortedData);
         }
         ctx?.setColumns && ctx?.setColumns(cols => cols?.map((col) => {
@@ -32,7 +34,7 @@ const TableHeaders: FC = <T,>() => {
 
     return <tr key={'table-headers'}>
         {ctx?.columns && ctx?.columns.map((field) => (
-            <th
+            <TableHeaderWrapper
                 draggable={field.groupable}
                 onDragStart={(ev) => {
                     return ev.dataTransfer.setData("text", field.key as string);
@@ -62,7 +64,7 @@ const TableHeaders: FC = <T,>() => {
                                 />
                     )
                 }
-            </th>
+            </TableHeaderWrapper>
         ))}
     </tr>
 }

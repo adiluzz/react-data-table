@@ -3,31 +3,15 @@ import ArrowForwardIosIcon from '@mui/icons-material/ArrowForwardIos';
 import FirstPageIcon from '@mui/icons-material/FirstPage';
 import LastPageIcon from '@mui/icons-material/LastPage';
 import { useMemo, useState } from "react";
-import styled from "styled-components";
-import { defaultPageSizeOptions } from "../DataTable.const";
-import { numberWithCommas } from '../DataTable.utils';
-import { useTableContext } from "./modules/table/Table.context";
-
-const PageNumber = styled.div<{ $isCurrentPage?: boolean }>(({ $isCurrentPage }) => {
-    return {
-        height: 50,
-        width: 50,
-        // backgroundColor: $isCurrentPage ? 'blue' : 'red',
-        display: 'flex',
-        justifyContent: 'center',
-        alignItems: 'center',
-        border: `1px solid ${$isCurrentPage ? 'black' : 'grey'}`
-    }
-});
-
-const PaginationWrapper = styled.div({
-    display: 'flex',
-});
+import { defaultPageSizeOptions } from "../../DataTable.const";
+import { numberWithCommas } from '../../DataTable.utils';
+import { useTableContext } from "../table/Table.context";
+import { PageNumber, PagesWrapper, PaginationWrapper, RowsPerPageTitle } from './Pagination.components';
 
 
 const Pagination = <T,>() => {
     const ctx = useTableContext<T>();
-    const maxPages = 10;
+    const maxPages = window.innerWidth > 920 ? 10 : 5;
     const [pagesDisplayed, setPagesDisplayed] = useState<number>(0);
     const pages = useMemo<number[]>(() => {
         let pagesArrayLength = 0;
@@ -46,26 +30,29 @@ const Pagination = <T,>() => {
         return pagesArray;
     }, [ctx]);
 
-    return <div>
-        <select
-            onChange={(ev) => {
-                if (ctx?.setPageSize) {
-                    ctx?.setPageSize(Number(ev.target.value));
+    return <PaginationWrapper>
+        <div>
+            <RowsPerPageTitle>Rows per page</RowsPerPageTitle>
+            <select
+                onChange={(ev) => {
+                    if (ctx?.setPageSize) {
+                        ctx?.setPageSize(Number(ev.target.value));
+                    }
+                }}
+                value={ctx?.pageSize}
+            >
+                {
+                    defaultPageSizeOptions.map(option =>
+                        <option value={option} key={option}>{option}</option>
+                    )
                 }
-            }}
-            value={ctx?.pageSize}
-        >
-            {
-                defaultPageSizeOptions.map(option =>
-                    <option value={option} key={option}>{option}</option>
-                )
-            }
-        </select>
+            </select>
+        </div>
         {
             ctx && ctx?.tableData?.length &&
-            <div>Showing {ctx?.page * ctx?.pageSize} - {((ctx?.page + 1) * ctx?.pageSize) < ctx?.tableData?.length ? (ctx?.page + 1) * ctx?.pageSize : ctx.tableData?.length} Total Rows: {numberWithCommas(ctx?.tableData?.length)}</div>
+            <div>{ctx?.page * ctx?.pageSize} - {((ctx?.page + 1) * ctx?.pageSize) < ctx?.tableData?.length ? (ctx?.page + 1) * ctx?.pageSize : ctx.tableData?.length} of {numberWithCommas(ctx?.tableData?.length)}</div>
         }
-        <PaginationWrapper>
+        <PagesWrapper>
             {
 
                 pages.length > maxPages &&
@@ -88,7 +75,7 @@ const Pagination = <T,>() => {
                     </PageNumber>
                 </>
             }
-            {pages && pages.slice(pagesDisplayed, pagesDisplayed + maxPages).map((page, i) =>
+            {pages && pages.length > 1 && pages.slice(pagesDisplayed, pagesDisplayed + maxPages).map((page, i) =>
                 <PageNumber
                     key={i}
                     onClick={() => {
@@ -122,8 +109,8 @@ const Pagination = <T,>() => {
                 </>
             }
 
-        </PaginationWrapper>
-    </div>
+        </PagesWrapper>
+    </PaginationWrapper>
 };
 
 export default Pagination;
