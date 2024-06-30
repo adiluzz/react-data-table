@@ -15,7 +15,7 @@ type MockData = {
 
 function App() {
 	const mockTableFields: TableField<MockData>[] = [
-		{ key: "id", headerText: "ID", sortable: true, groupable: true },
+		{ key: "id", headerText: "ID", sortable: true },
 		{ key: "first_name", headerText: "First Name", sortable: true, groupable: true },
 		{ key: "last_name", headerText: "Last Name", sortable: true, groupable: true },
 		{ key: "email", headerText: "Email", sortable: true, groupable: true },

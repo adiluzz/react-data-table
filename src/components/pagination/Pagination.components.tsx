@@ -1,14 +1,16 @@
 import styled from "styled-components";
 import { RowBorder } from "../common/classes";
+import { Clickable } from "../common/classes.const";
 
 export const PageNumber = styled.div<{ $isCurrentPage?: boolean }>(({ $isCurrentPage }) => {
     return {
+        ...Clickable,
         height: 50,
         width: 50,
         display: 'flex',
         justifyContent: 'center',
         alignItems: 'center',
-        border: `1px solid ${$isCurrentPage ? 'black' : 'grey'}`
+        border: `1px solid ${$isCurrentPage ? 'black' : 'grey'}`,
     }
 });
 
