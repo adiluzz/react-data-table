@@ -1,7 +1,7 @@
 import mockData from '../../tests/MOCK_DATA.json';
+import '../App.css';
 import DataTable from '../DataTable';
 import { TableField } from '../DataTable.interface';
-import './App.css';
 
 type MockData = {
 	id: string;
@@ -31,4 +31,4 @@ function App() {
 	);
 }
 
-export default App
+export default App;

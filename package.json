@@ -18,7 +18,7 @@
   "module": "./dist/react-data-table.es.js",
   "types": "./dist/src/main.d.ts",
   "scripts": {
-    "dev": "vite",
+    "dev": "cd src/examples && MODE=dev vite",
     "build": "vite build && tsc",
     "lint": "eslint . --ext ts,tsx --report-unused-disable-directives --max-warnings 0",
     "preview": "vite preview"
