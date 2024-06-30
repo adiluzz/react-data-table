@@ -9,16 +9,17 @@
   "exports": {
     ".": {
       "import": "./dist/react-data-table.es.js",
-      "require": "./dist/react-data-table.umd.js"
+      "require": "./dist/react-data-table.umd.js",
+      "types": "./dist/src/main.d.ts"
     },
     "./dist/style.css": "./dist/style.css"
   },
   "main": "./dist/react-data-table.umd.js",
   "module": "./dist/react-data-table.es.js",
-  "types": "./dist/index.d.ts",
+  "types": "./dist/src/main.d.ts",
   "scripts": {
     "dev": "vite",
-    "build": "tsc && vite build",
+    "build": "vite build && tsc",
     "lint": "eslint . --ext ts,tsx --report-unused-disable-directives --max-warnings 0",
     "preview": "vite preview"
   },
