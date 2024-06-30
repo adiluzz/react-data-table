@@ -2,8 +2,8 @@ import { useCallback, useEffect, useMemo, useState } from "react";
 import DataTableContext from './DataTable.context';
 import { BaseRow, DataTableProps, Grouping, TableField } from './DataTable.interface';
 import { groupData } from './DataTable.utils';
-import GroupingPanel from './components/GroupingPanel';
-import Table from './components/modules/table/Table';
+import GroupingPanel from './components/grouping/GroupingPanel';
+import Table from './components/table/Table';
 
 
 

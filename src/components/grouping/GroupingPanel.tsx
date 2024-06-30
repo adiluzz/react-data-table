@@ -1,12 +1,13 @@
 import ClearIcon from '@mui/icons-material/Clear';
 import { FC } from "react";
 import styled from 'styled-components';
-import { useDataTableContext } from "../DataTable.context";
-import { Grouping } from "../DataTable.interface";
+import { useDataTableContext } from "../../DataTable.context";
+import { Grouping } from "../../DataTable.interface";
 
 const GroupingPanelWrapper = styled.div({
     height: '50px',
     width: '100%',
+    backgroundColor:'green'
 });
 
 
@@ -54,6 +55,10 @@ const GroupingPanel: FC = <T,>() => {
                     }} />
                 </div>
             )
+        }
+        {
+            !ctx?.tableGroupings?.length &&
+            <div>Drop column headers here to group data</div>
         }
     </GroupingPanelWrapper>
 

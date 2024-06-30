@@ -1,36 +1,13 @@
 import { useState } from "react";
-import styled from "styled-components";
-import { useDataTableContext } from "../DataTable.context";
-import { GroupedRow, TableField } from "../DataTable.interface";
-import { numberWithCommas } from "../DataTable.utils";
-import { Collapsible } from "./common/Collapsible";
-import ConditionalArrow from "./common/ConditionalArrow";
-import Table from "./modules/table/Table";
-import { useTableContext } from "./modules/table/Table.context";
+import { useDataTableContext } from "../../DataTable.context";
+import { GroupedRow, TableField } from "../../DataTable.interface";
+import { numberWithCommas } from "../../DataTable.utils";
+import { Collapsible } from "../common/Collapsible";
+import ConditionalArrow from "../common/ConditionalArrow";
+import Table from "./Table";
+import { FullWidthTableDetail, GroupedCell, GroupedIndentation, TableRowWrapper } from "./Table.components";
+import { useTableContext } from "./Table.context";
 
-
-const TableRowWrapper = styled.tr({
-    width: '100%',
-    textAlign: 'left',
-});
-
-
-const FullWidthTableDetail = styled.td`
-    display: table-cell;
-`;
-
-const GroupedCell = styled.div({
-    display: 'flex',
-    flexDirection: 'row'
-});
-
-const GroupedIndentation = styled.span<{ $indentation: number }>(({ $indentation }) => {
-    return {
-        width: 50 * $indentation,
-        display: 'inline-block',
-        height: 10
-    }
-});
 
 
 type GroupedTableRowProps<T> = {

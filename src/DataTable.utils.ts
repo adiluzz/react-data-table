@@ -18,8 +18,9 @@ export function groupData<T>(data: BaseRow<T>[], field: Grouping<T>[], groupingC
     const newTableData: BaseRow<T>[] = [];
     for (const key in dataByKey) {
         if (Object.prototype.hasOwnProperty.call(dataByKey, key)) {
-            const element = [...dataByKey[key]];
-            const groupedData = groupingCount + 1 < field.length ? groupData(element, field, groupingCount + 1) : element;
+            const element = dataByKey[key];
+            const groupedData: BaseRow<T>[] = groupingCount + 1 < field.length ? groupData(element, field, groupingCount + 1) : element;
+
             newTableData.push({
                 groupedBy: {
                     groupField: field[groupingCount],
@@ -30,6 +31,12 @@ export function groupData<T>(data: BaseRow<T>[], field: Grouping<T>[], groupingC
             } as unknown as BaseRow<T>);
         }
     }
+    newTableData.sort((a, b) => {
+        if (a.groupedData && b.groupedData) {
+            return b.groupedData.length - a.groupedData.length;
+        }
+        return 0;
+    });
     return newTableData;
 
 }
