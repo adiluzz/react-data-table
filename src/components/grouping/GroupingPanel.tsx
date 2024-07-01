@@ -1,14 +1,9 @@
 import ClearIcon from '@mui/icons-material/Clear';
 import { FC } from "react";
-import styled from 'styled-components';
 import { useDataTableContext } from "../../DataTable.context";
 import { Grouping } from "../../DataTable.interface";
-
-const GroupingPanelWrapper = styled.div({
-    height: '50px',
-    width: '100%',
-    backgroundColor:'green'
-});
+import { TableHeaderTextWrapper } from '../table/Table.components';
+import { DeleteGroupingButtonWrapper, GroupWrapper, GroupingPanelWrapper } from './Grouping.components';
 
 
 const GroupingPanel: FC = <T,>() => {
@@ -48,12 +43,18 @@ const GroupingPanel: FC = <T,>() => {
     >
         {
             ctx?.tableGroupings?.map(field =>
-                <div style={{ display: 'inline-block' }} key={String(field)}>
-                    {String(field)}
-                    <ClearIcon onClick={() => {
-                        removeFromGroupings(String(field));
-                    }} />
-                </div>
+                <GroupWrapper key={String(field)}>
+                    <TableHeaderTextWrapper>
+                        {String(field)}
+                    </TableHeaderTextWrapper>
+                    <DeleteGroupingButtonWrapper>
+                        <ClearIcon
+                            onClick={() => {
+                                removeFromGroupings(String(field));
+                            }}
+                        />
+                    </DeleteGroupingButtonWrapper>
+                </GroupWrapper>
             )
         }
         {
