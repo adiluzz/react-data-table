@@ -45,7 +45,7 @@ const GroupingPanel: FC = <T,>() => {
             ctx?.tableGroupings?.map(field =>
                 <GroupWrapper key={String(field)}>
                     <TableHeaderTextWrapper>
-                        {String(field)}
+                        {String(ctx.columns?.find(col => col.key === field)?.headerText)}
                     </TableHeaderTextWrapper>
                     <DeleteGroupingButtonWrapper>
                         <ClearIcon

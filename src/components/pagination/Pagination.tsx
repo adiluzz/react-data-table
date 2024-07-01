@@ -6,7 +6,7 @@ import { useMemo, useState } from "react";
 import { defaultPageSizeOptions } from "../../DataTable.const";
 import { numberWithCommas } from '../../DataTable.utils';
 import { useTableContext } from "../table/Table.context";
-import { PageNumber, PagesWrapper, PaginationWrapper, RowsPerPageTitle } from './Pagination.components';
+import { PageNumber, PageSizeSelect, PagesWrapper, PaginationWrapper, RowsPerPageTitle } from './Pagination.components';
 
 
 const Pagination = <T,>() => {
@@ -31,26 +31,29 @@ const Pagination = <T,>() => {
     }, [ctx]);
 
     return <PaginationWrapper>
-        <div>
-            <RowsPerPageTitle>Rows per page</RowsPerPageTitle>
-            <select
-                onChange={(ev) => {
-                    if (ctx?.setPageSize) {
-                        ctx?.setPageSize(Number(ev.target.value));
+        {
+            ctx?.pageSize && ctx?.tableData && (ctx?.pageSize < ctx.tableData.length) &&
+            <div>
+                <RowsPerPageTitle>Rows per page</RowsPerPageTitle>
+                <PageSizeSelect
+                    onChange={(ev) => {
+                        if (ctx?.setPageSize) {
+                            ctx?.setPageSize(Number(ev.target.value));
+                        }
+                    }}
+                    value={ctx?.pageSize}
+                >
+                    {
+                        defaultPageSizeOptions.map(option =>
+                            <option value={option} key={option}>{option}</option>
+                        )
                     }
-                }}
-                value={ctx?.pageSize}
-            >
-                {
-                    defaultPageSizeOptions.map(option =>
-                        <option value={option} key={option}>{option}</option>
-                    )
-                }
-            </select>
-        </div>
+                </PageSizeSelect>
+            </div>
+        }
         {
             ctx && ctx?.tableData?.length &&
-            <div>{ctx?.page * ctx?.pageSize} - {((ctx?.page + 1) * ctx?.pageSize) < ctx?.tableData?.length ? (ctx?.page + 1) * ctx?.pageSize : ctx.tableData?.length} of {numberWithCommas(ctx?.tableData?.length)}</div>
+            <div>Showing {ctx?.page * ctx?.pageSize} - {((ctx?.page + 1) * ctx?.pageSize) < ctx?.tableData?.length ? (ctx?.page + 1) * ctx?.pageSize : ctx.tableData?.length} of {numberWithCommas(ctx?.tableData?.length)}</div>
         }
         <PagesWrapper>
             {
