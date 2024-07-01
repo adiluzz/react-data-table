@@ -1,21 +1,21 @@
 {
-  "name": "react-data-table",
+  "name": "react-turbo-table",
   "private": false,
-  "version": "0.0.0",
+  "version": "0.0.1",
   "type": "module",
   "files": [
     "dist"
   ],
   "exports": {
     ".": {
-      "import": "./dist/react-data-table.es.js",
-      "require": "./dist/react-data-table.umd.js",
+      "import": "./dist/react-turbo-table.es.js",
+      "require": "./dist/react-turbo-table.umd.js",
       "types": "./dist/src/main.d.ts"
     },
     "./dist/style.css": "./dist/style.css"
   },
-  "main": "./dist/react-data-table.umd.js",
-  "module": "./dist/react-data-table.es.js",
+  "main": "./dist/react-turbo-table.umd.js",
+  "module": "./dist/react-turbo-table.es.js",
   "types": "./dist/src/main.d.ts",
   "scripts": {
     "dev": "cd src/examples && MODE=dev vite",

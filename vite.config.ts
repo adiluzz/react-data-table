@@ -26,7 +26,7 @@ export default defineConfig(() => ({
       entry: resolve('src', 'main.tsx'),
       name: 'ReactDataTable',
       formats: ['es', 'umd'],
-      fileName: (format) => `react-data-table.${format}.js`,
+      fileName: (format) => `react-turbo-table.${format}.js`,
     },
     rollupOptions: {
       external: [...Object.keys(packageJson.peerDependencies)],
