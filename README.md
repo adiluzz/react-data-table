@@ -17,8 +17,7 @@ This is a simple usage via API.
 
 ```typescript
 import { useCallback, useEffect, useState } from 'react';
-import DataTable from '../DataTable';
-import { TableField } from '../DataTable.interface';
+import DataTable, { TableField } from 'react-turbo-table';
 import './App.css';
 
 type User = {
@@ -64,7 +63,7 @@ function App() {
     );
 }
 
-export default App
+export default App;
 
 ```
 
