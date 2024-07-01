@@ -19,11 +19,12 @@ export const GroupingPanelWrapper = styled.div({
 export const GroupWrapper = styled.div({
     display: 'flex',
     backgroundColor: '#e3e3e3',
-    borderRadius: 15,
+    borderRadius: 10,
     padding: '5px 10px',
     justifyContent:'center',
     alignItems:'center',
-    lineHeight:'100%'
+    lineHeight:'100%',
+    marginRight:15
 });
 
 export const DeleteGroupingButtonWrapper = styled.span({
