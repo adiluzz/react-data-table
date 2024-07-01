@@ -16,45 +16,76 @@ npm i react-turbo-table
 This is a simple usage via API.
 
 ```typescript
-import { FC } from 'react';
-import DataTable, { TableField } from "react-turbo-table";
-import mockData from '../../react-turbo-table/tests/MOCK_DATA.json';
+import { useCallback, useEffect, useState } from 'react';
+import DataTable from '../DataTable';
+import { TableField } from '../DataTable.interface';
+import './App.css';
 
-type MockData = {
-  id: string;
-  first_name: string;
-  last_name: string;
-  email: string;
-  gender: string;
-  ip_address: string;
-
+type User = {
+    id: string;
+    name: string;
+    username: string;
 }
 
-const App: FC = () => {
-  const mockTableFields:TableField<MockData>[] = [
-    { key: "id", headerText: "ID", sortable: true, groupable: true },
-    { key: "first_name", headerText: "First Name", sortable: true, groupable: true },
-    { key: "last_name", headerText: "Last Name", sortable: true, groupable: true },
-    { key: "email", headerText: "Email", sortable: true, groupable: true },
-    { key: "gender", headerText: "Gender", sortable: true, groupable: true },
-    { 
-      key: "ip_address", 
-      headerText: "IP Address", 
-      sortable: true, 
-      groupable: true,
-      renderComponent:(row) => <div>{row.ip_address}</div>
-    },
-  ];
+
+function App() {
+    const [users, setUsers] = useState<User[]>();
+    const removeUserFromTable = (id: string) => {
+        if (users) {
+            setUsers(
+                users.filter((user) => {
+                    return user?.id && user.id !== id;
+                })
+            );
+        }
+    };
+    const tableFields: TableField<User>[] = [
+        { key: "id", headerText: "ID", sortable: true, groupable: true },
+        { key: "name", headerText: "Name", sortable: true, groupable: true },
+        { key: "username", headerText: "Username", sortable: true, groupable: true },
+        {
+            renderComponent: (row) => {
+                return (
+                    <button
+                        onClick={() => {
+                            if (row.id) {
+                                removeUserFromTable(row.id);
+                            }
+                        }}
+                    >
+                        Delete {row.name}
+                    </button>
+                );
+            },
+            headerText: "Delete",
+            key: "delete",
+        },
+    ];
+
+    const fetchUserData = useCallback(async () => {
+        const res = await fetch("https://jsonplaceholder.typicode.com/users");
+        const users: User[] = await res.json();
+        const duplicatedUsers: User[] = [...users, ...users.map((user, i) => {
+            return { ...user, id: String(11 + i) }
+        })]
+
+        setUsers(duplicatedUsers);
+    }, []);
 
 
-  return (
-    <div className="App">
-      <DataTable data={mockData as unknown as MockData[]} fields={mockTableFields} />
-    </div>
-  );
+    useEffect(() => {
+        fetchUserData();
+    }, [fetchUserData]);
+
+    return (
+        <div className="App">
+            {users && <DataTable data={users} fields={tableFields} />}
+        </div>
+    );
 }
 
-export default App;
+export default App
+
 ```
 
 There are more examples in the tests/ directory.
