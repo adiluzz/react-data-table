@@ -31,8 +31,6 @@ export type Grouping<T> = keyof BaseRow<T> | string | number | symbol;
 export type DataTableProps<T> = {
     data: BaseRow<T>[];
     fields: TableField<T>[];
-    renderHeaders?: boolean;
-    depth?: number;
 };
 
 export type DragHeaderStart<T> = (col: keyof T, ev: React.DragEvent<HTMLTableHeaderCellElement>) => void;
