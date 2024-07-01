@@ -30,15 +30,7 @@ type User = {
 
 function App() {
     const [users, setUsers] = useState<User[]>();
-    const removeUserFromTable = (id: string) => {
-        if (users) {
-            setUsers(
-                users.filter((user) => {
-                    return user?.id && user.id !== id;
-                })
-            );
-        }
-    };
+
     const tableFields: TableField<User>[] = [
         { key: "id", headerText: "ID", sortable: true, groupable: true },
         { key: "name", headerText: "Name", sortable: true, groupable: true },
@@ -46,15 +38,7 @@ function App() {
         {
             renderComponent: (row) => {
                 return (
-                    <button
-                        onClick={() => {
-                            if (row.id) {
-                                removeUserFromTable(row.id);
-                            }
-                        }}
-                    >
-                        Delete {row.name}
-                    </button>
+                    <div>Name: {row.name}. Username {row.username}</div>
                 );
             },
             headerText: "Delete",
@@ -65,11 +49,7 @@ function App() {
     const fetchUserData = useCallback(async () => {
         const res = await fetch("https://jsonplaceholder.typicode.com/users");
         const users: User[] = await res.json();
-        const duplicatedUsers: User[] = [...users, ...users.map((user, i) => {
-            return { ...user, id: String(11 + i) }
-        })]
-
-        setUsers(duplicatedUsers);
+        setUsers(users);
     }, []);
 
 
@@ -88,16 +68,17 @@ export default App
 
 ```
 
-There are more examples in the tests/ directory.
+There are more examples in the src/examples directory.
 
 
 ## Props
 
 This table currently has 2 props:
-1. Data - your data.
-2. Fields - your fields. This where most of the configuration is made.
 
-### Fields parameter
+1. <code>data</code> - your data.
+2. <code>fields</code> - your fields. This where most of the configuration is made.
+
+### Fields parameters
 
 - <code>key</code> - (string) A unique key for this column.
 - <code>headerText</code> - (string) The text shown in the table header.
