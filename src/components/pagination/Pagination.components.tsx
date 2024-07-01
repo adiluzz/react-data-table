@@ -37,7 +37,7 @@ export const PageSizeSelect = styled.select({
     minWidth: 50,
     minHeight: 30,
     borderRadius: 5,
-    backgroundColor: 'white',
+    backgroundColor: 'rgba(0,0,0,0)',
     border: `1px solid ${grayScale500}`,
     paddingLeft: 3,
 })

@@ -11,9 +11,9 @@ export const GroupingPanelWrapper = styled.div({
     paddingLeft: 15,
     borderRadius: 5,
     backgroundColor: 'rgba(245, 245, 245, 0.4)',
-    display:'flex',
-    flexWrap:'wrap',
-    alignItems:'center',
+    display: 'flex',
+    flexWrap: 'wrap',
+    alignItems: 'center',
 });
 
 export const GroupWrapper = styled.div({
@@ -21,12 +21,13 @@ export const GroupWrapper = styled.div({
     backgroundColor: '#e3e3e3',
     borderRadius: 10,
     padding: '5px 10px',
-    justifyContent:'center',
-    alignItems:'center',
-    lineHeight:'100%',
-    marginRight:15
+    justifyContent: 'center',
+    alignItems: 'center',
+    lineHeight: '100%',
+    marginRight: 15,
+    color: 'black'
 });
 
 export const DeleteGroupingButtonWrapper = styled.span({
-    display:'flex'
+    display: 'flex'
 });
