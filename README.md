@@ -99,8 +99,8 @@ This table currently has 2 props:
 
 ### Fields parameter
 
-<code>key</code> - (string) A unique key for this column.
-<code>headerText</code> - (string) The text shown in the table header.
-<code>sortable</code> - (boolean) Indicates if this column can be sorted.
-<code>groupable</code> - (boolean) Indicates if this column can be grouped.
-<code>renderComponent</code> - (JSX.element) A component to render instead of the value. This function gets the row it this table detail.
+- <code>key</code> - (string) A unique key for this column.
+- <code>headerText</code> - (string) The text shown in the table header.
+- <code>sortable</code> - (boolean) Indicates if this column can be sorted.
+- <code>groupable</code> - (boolean) Indicates if this column can be grouped.
+- <code>renderComponent</code> - (JSX.element) A component to render instead of the value. This function gets the row it this table detail.
