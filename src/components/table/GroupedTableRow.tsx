@@ -1,9 +1,9 @@
 import { useState } from "react";
-import { useDataTableContext } from "../../DataTable.context";
-import { GroupedRow, TableField } from "../../DataTable.interface";
-import { numberWithCommas } from "../../DataTable.utils";
 import { Collapsible } from "../common/Collapsible";
 import ConditionalArrow from "../common/ConditionalArrow";
+import { useDataTableContext } from "../data_table/DataTable.context";
+import { GroupedRow, TableField } from "../data_table/DataTable.interface";
+import { numberWithCommas } from "../data_table/DataTable.utils";
 import Table from "./Table";
 import { FullWidthTableDetail, GroupedCell, GroupedIndentation, TableRowWrapper } from "./Table.components";
 import { useTableContext } from "./Table.context";

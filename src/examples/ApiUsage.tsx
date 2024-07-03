@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useState } from 'react';
-import DataTable from '../DataTable';
-import { TableField } from '../DataTable.interface';
+import DataTable from '../components/data_table/DataTable';
+import { TableField } from '../components/data_table/DataTable.interface';
 import './App.css';
 
 type User = {
