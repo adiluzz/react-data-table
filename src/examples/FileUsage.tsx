@@ -1,6 +1,6 @@
 import mockData from '../../tests/MOCK_DATA.json';
 import '../App.css';
-import DataTable from '../components/data_table/DataTable';
+import DataTable from '../App.tsx';
 import { TableField } from '../components/data_table/DataTable.interface';
 
 type MockData = {

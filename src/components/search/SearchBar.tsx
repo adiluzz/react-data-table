@@ -1,40 +1,47 @@
 import ClearIcon from '@mui/icons-material/Clear';
-
-import { FC, useState } from "react";
-import { useDataTableContext } from "../data_table/DataTable.context";
+import { FC, useRef, useState } from "react";
 import { debounce } from "../data_table/DataTable.utils";
 import { SearchBarWrapper, SearchInput } from "./Search.components";
 
+type SearchBarProps = {
+    onChange(val: string): void;
+    debounceTime?: number;
+    placeholder?: string;
+}
 
-const SearchBar: FC = () => {
+const SearchBar: FC<SearchBarProps> = ({ onChange, debounceTime = 1000, placeholder = 'Search...' }) => {
     const [focused, setFocused] = useState<boolean>(false);
-    const ctx = useDataTableContext();
-    const changeSearchTerm = (term: string) => {
-        if (ctx?.setSearchTerm) {
-            ctx?.setSearchTerm(term);
+    const searchInputRef = useRef<HTMLInputElement>(null);
+    const debouncedChangedSearchTerm = debounce(onChange, debounceTime);
+
+    const inputChanged = (ev: React.ChangeEvent<HTMLInputElement>) => {
+        if (debounceTime) {
+            debouncedChangedSearchTerm(ev.target.value);
+        } else {
+            onChange(ev.target.value);
         }
     }
-    const debouncedChangedSearchTerm = debounce(changeSearchTerm, 1000);
     return <SearchBarWrapper $focused={focused}>
         <SearchInput
-            onChange={(ev) => {
-                debouncedChangedSearchTerm(ev.target.value);
-            }}
-            placeholder="Search..."
+            onChange={inputChanged}
+            placeholder={placeholder}
             onFocus={() => {
                 setFocused(true);
             }}
             onBlur={() => {
                 setFocused(false);
             }}
-            // value={ctx?.searchTerm}
+            ref={searchInputRef}
         />
         {
-            ctx?.searchTerm && ctx.searchTerm !== '' &&
+            searchInputRef?.current?.value !== '' &&
             <ClearIcon
                 className="clickable"
                 onClick={() => {
-                    changeSearchTerm('');
+                    if (searchInputRef.current) {
+                        searchInputRef.current.value = '';
+                    }
+                    onChange('');
                 }} />
         }
     </SearchBarWrapper>

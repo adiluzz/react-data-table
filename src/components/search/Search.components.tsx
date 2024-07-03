@@ -7,8 +7,11 @@ export const SearchBarWrapper = styled.div<{ $focused: boolean }>(({ $focused })
         alignItems: 'center',
         border: $focused ? darkBorder : defaultBorder,
         alignSelf: 'center',
-        padding: 6,
-        borderRadius: 6
+        padding: '10px 6px',
+        borderRadius: 6,
+        height: 25,
+        width: 350,
+        justifyContent:'space-between'
     }
 });
 
