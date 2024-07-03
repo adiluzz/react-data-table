@@ -2,8 +2,11 @@ import { css } from "styled-components";
 
 export const grayScale200 = '#dbd9d9';
 export const grayScale500 = '#adadad';
+export const grayScale700 = '#575757';
 
 export const defaultBorder = `1px solid ${grayScale200}`;
+export const darkBorder = `1px solid ${grayScale700}`;
+
 
 export const RowBorder = css({
     borderBottom: defaultBorder,

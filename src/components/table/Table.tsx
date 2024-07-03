@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useState } from "react";
-import { defaultPageSizeOptions } from "../../DataTable.const";
-import { BaseRow, TableField, TableProps } from "../../DataTable.interface";
+import { defaultPageSizeOptions } from "../data_table/DataTable.const";
+import { BaseRow, TableField, TableProps } from "../data_table/DataTable.interface";
 import Pagination from "../pagination/Pagination";
 import GroupedTableRow from "./GroupedTableRow";
 import { TableDetail, TableOverflowContainer, TableRowWrapper } from "./Table.components";

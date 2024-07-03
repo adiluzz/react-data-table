@@ -1,4 +1,4 @@
-import { TableField } from "../../DataTable.interface";
+import { TableField } from "../../components/data_table/DataTable.interface";
 
 export type MockData = {
 	id: string;

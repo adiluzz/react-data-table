@@ -3,8 +3,8 @@ import ArrowForwardIosIcon from '@mui/icons-material/ArrowForwardIos';
 import FirstPageIcon from '@mui/icons-material/FirstPage';
 import LastPageIcon from '@mui/icons-material/LastPage';
 import { useMemo, useState } from "react";
-import { defaultPageSizeOptions } from "../../DataTable.const";
-import { numberWithCommas } from '../../DataTable.utils';
+import { defaultPageSizeOptions } from "../data_table/DataTable.const";
+import { numberWithCommas } from '../data_table/DataTable.utils';
 import { useTableContext } from "../table/Table.context";
 import { PageNumber, PageSizeSelect, PagesWrapper, PaginationWrapper, RowsPerPageTitle } from './Pagination.components';
 

@@ -1,7 +1,8 @@
+import { FilterOption } from "../filter_panel/FilterPanel.interface";
 import { BaseRow, Grouping, GroupingHash, TableField } from "./DataTable.interface";
 
-export function hasGroupableFields(fields?: TableField<unknown>[]): boolean {
-    return !!fields?.find(field => field.groupable);
+export function hasFields<T>(input: keyof TableField<T>, fields: TableField<T>[]): boolean {
+    return !!fields?.find(field => field[input]);
 }
 
 export function groupData<T>(data: BaseRow<T>[], field: Grouping<T>[], groupingCount: number = 0): BaseRow<T>[] {
@@ -43,4 +44,38 @@ export function groupData<T>(data: BaseRow<T>[], field: Grouping<T>[], groupingC
 
 export function numberWithCommas(x: number) {
     return x.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",");
+}
+
+
+
+export const debounce = <F extends (...args: Parameters<F>) => ReturnType<F>>(
+    func: F,
+    waitFor: number,
+) => {
+    let timeout: NodeJS.Timeout;
+
+    const debounced = (...args: Parameters<F>) => {
+        clearTimeout(timeout);
+        timeout = setTimeout(() => func(...args), waitFor);
+    }
+
+    return debounced;
+};
+
+export const getUniqueValues = (data: never[], key: string): FilterOption[] => {
+    const values: { [key: string]: number } = {};
+    for (let i = 0; i < data.length; i++) {
+        const rowValue = data[i][key];
+        if (values[rowValue]) {
+            values[rowValue]++;
+        } else {
+            values[rowValue] = 1;
+        }
+    }
+    return Object.keys(values).map(val => {
+        return {
+            value: val,
+            count: values[val]
+        }
+    }).sort((a, b) => b.count - a.count);
 }

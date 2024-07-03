@@ -1,7 +1,7 @@
 import ClearIcon from '@mui/icons-material/Clear';
 import { FC } from "react";
-import { useDataTableContext } from "../../DataTable.context";
-import { Grouping } from "../../DataTable.interface";
+import { useDataTableContext } from "../data_table/DataTable.context";
+import { Grouping } from "../data_table/DataTable.interface";
 import { TableHeaderTextWrapper } from '../table/Table.components';
 import { DeleteGroupingButtonWrapper, GroupWrapper, GroupingPanelWrapper } from './Grouping.components';
 

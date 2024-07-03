@@ -6,7 +6,6 @@ export const GroupingPanelWrapper = styled.div({
     width: '100%',
     border: defaultBorder,
     lineHeight: '50px',
-    marginBottom: 30,
     textAlign: 'left',
     paddingLeft: 15,
     borderRadius: 5,

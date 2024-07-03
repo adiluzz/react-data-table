@@ -1,5 +1,4 @@
-import App from './App';
 import './index.css';
-export type { DataTableProps, TableField } from './DataTable.interface';
-export default App;
+export { default as TurboTable } from './App';
+export type { DataTableProps, TableField } from './components/data_table/DataTable.interface';
 

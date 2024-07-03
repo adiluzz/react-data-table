@@ -7,6 +7,8 @@ export interface TableField<T = object> {
     sortable?: boolean;
     sorted?: SortDirection;
     groupable?: boolean;
+    searchable?: boolean;
+    filterable?: boolean;
 }
 
 export type GroupedRow<T> = {

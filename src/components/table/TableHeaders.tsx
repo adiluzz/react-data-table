@@ -2,7 +2,7 @@ import ArrowDropDownIcon from '@mui/icons-material/ArrowDropDown';
 import ArrowDropUpIcon from '@mui/icons-material/ArrowDropUp';
 import SortIcon from '@mui/icons-material/Sort';
 import { FC } from "react";
-import { SortDirection } from '../../DataTable.interface';
+import { SortDirection } from '../data_table/DataTable.interface';
 import { TableHeaderIconWrapper, TableHeaderTextWrapper, TableHeaderWrapper } from './Table.components';
 import { useTableContext } from './Table.context';
 
