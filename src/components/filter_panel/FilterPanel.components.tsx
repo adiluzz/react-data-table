@@ -1,6 +1,6 @@
 import styled from "styled-components";
 import { Collapsible } from "../common/Collapsible";
-import { defaultBorder, grayScale200 } from "../common/classes";
+import { defaultBorder, grayScale100, grayScale500 } from "../common/classes";
 
 export const FilterGroupsContainer = styled.div({
     display: 'flex',
@@ -16,7 +16,8 @@ export const FilterSelectContainer = styled(Collapsible)({
     width: 250,
     textAlign: 'left',
     position: 'absolute',
-    backgroundColor: 'white'
+    backgroundColor: grayScale100,
+    color: 'black'
 });
 
 export const FilterGroupContainer = styled.div({
@@ -33,7 +34,7 @@ export const FilterGroupWrapper = styled.div({
 
 export const FilterGroupHeader = styled.div({
     fontWeight: 600,
-    backgroundColor: grayScale200,
+    backgroundColor: grayScale500,
 });
 
 

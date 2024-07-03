@@ -1,5 +1,5 @@
 import { css } from "styled-components";
-
+export const grayScale100 = '#f5f5f5'
 export const grayScale200 = '#dbd9d9';
 export const grayScale500 = '#adadad';
 export const grayScale700 = '#575757';
