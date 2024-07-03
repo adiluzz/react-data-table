@@ -87,7 +87,15 @@ const DataTable = <T,>({ data, fields }: DataTableProps<T>) => {
 				(tableHasGroupableFields || tableHasSearchableFields) &&
 				<BottomPanelWrapper>
 					{tableHasGroupableFields && <GroupingPanel />}
-					{tableHasSearchableFields && <SearchBar />}
+					{
+						tableHasSearchableFields &&
+						<SearchBar
+							onChange={(val) => {
+								setSearchTerm(val);
+							}}
+							debounceTime={1000}
+						/>
+					}
 				</BottomPanelWrapper>
 			}
 			{

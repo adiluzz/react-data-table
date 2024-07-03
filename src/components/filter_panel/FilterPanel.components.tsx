@@ -1,6 +1,6 @@
 import styled from "styled-components";
 import { Collapsible } from "../common/Collapsible";
-import { defaultBorder, grayScale100, grayScale500 } from "../common/classes";
+import { defaultBorder, grayScale100, grayScale200, lightBorder } from "../common/classes";
 
 export const FilterGroupsContainer = styled.div({
     display: 'flex',
@@ -12,35 +12,39 @@ export const FilterGroupsContainer = styled.div({
     marginBottom: 15
 });
 
-export const FilterSelectContainer = styled(Collapsible)({
-    width: 250,
-    textAlign: 'left',
-    position: 'absolute',
-    backgroundColor: grayScale100,
-    color: 'black'
+export const FilterSelectContainer = styled(Collapsible)(({ $open }) => {
+    return {
+        width: 250,
+        textAlign: 'left',
+        position: 'absolute',
+        backgroundColor: 'white',
+        color: 'black',
+        boxShadow: `1px 1px 7px 3px ${grayScale200}`,
+        maxHeight: $open ? '80vh' : '0'
+    }
 });
 
 export const FilterGroupContainer = styled.div({
     maxHeight: 500,
     overflow: 'auto',
-    marginBottom: 5
+    marginBottom: 10,
 });
 
 
 export const FilterGroupWrapper = styled.div({
-
+    borderBottom: lightBorder,
+    padding: 10
 });
 
 
 export const FilterGroupHeader = styled.div({
     fontWeight: 600,
-    backgroundColor: grayScale500,
+    backgroundColor: grayScale100,
+    padding: 10
 });
 
 
 export const SelectFiltersButton = styled.div({
-    border: defaultBorder,
-    textAlign: 'left',
     display: 'flex',
     justifyContent: 'space-between',
     alignItems: 'center',
@@ -52,6 +56,8 @@ export const SelectFiltersButton = styled.div({
 
 
 export const ShowMore = styled.div({
-    color: 'blue',
-    textDecoration: 'underline'
-})
+    color: '#7788a3',
+    textDecoration: 'underline',
+    textAlign: 'right',
+    padding: 10
+});

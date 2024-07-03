@@ -1,5 +1,6 @@
 import { FC, useMemo, useState } from "react";
 import { FilterGroupContainer, FilterGroupHeader, FilterGroupWrapper, ShowMore } from "./FilterPanel.components";
+import { avoidCloseFiltersMenu } from "./FilterPanel.const";
 import { Filter, FilterResult } from "./FilterPanel.interface";
 
 type FilterGroupProps = Filter & {
@@ -9,9 +10,7 @@ type FilterGroupProps = Filter & {
 
 const FilterGroup: FC<FilterGroupProps> = ({ property, values, onFilterClicked, headerText }) => {
     const [rowsToDisplay, setRowsToDisplay] = useState<number>(5);
-    const canShowMore = useMemo(() => {
-        return rowsToDisplay < values.length;
-    }, [rowsToDisplay, values.length])
+    const canShowMore = useMemo(() => rowsToDisplay < values.length, [rowsToDisplay, values.length]);
     return <FilterGroupContainer>
         <FilterGroupHeader>{headerText || property}</FilterGroupHeader>
         {
@@ -26,14 +25,17 @@ const FilterGroup: FC<FilterGroupProps> = ({ property, values, onFilterClicked, 
                         }
                     }}
                     key={val.value}
+                    className="clickable"
                 >{val.value} - {val.count}</FilterGroupWrapper>
             )
         }
         {
             canShowMore &&
             <ShowMore
-                onClick={() => { setRowsToDisplay(rowsToDisplay + 5) }}
-                className="clickable"
+                onClick={() => {
+                    setRowsToDisplay(rowsToDisplay + 5);
+                }}
+                className={`clickable ${avoidCloseFiltersMenu}`}
             >
                 Show More
             </ShowMore>

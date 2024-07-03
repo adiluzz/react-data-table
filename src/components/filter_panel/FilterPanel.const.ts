@@ -1,0 +1,1 @@
+export const avoidCloseFiltersMenu = 'avoid-close-menu';
