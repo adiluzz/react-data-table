@@ -1,3 +1,4 @@
+import { Paper, TableContainer } from "@mui/material";
 import { useCallback, useEffect, useState } from "react";
 import { defaultPageSizeOptions } from "../data_table/DataTable.const";
 import { BaseRow, TableField, TableProps } from "../data_table/DataTable.interface";
@@ -42,33 +43,52 @@ const Table = <T,>({ data, fields, renderHeaders, depth = 0 }: TableProps<T>) =>
             setPageSize
         }}
     >
-        <TableOverflowContainer>
-            <TableConditional
-                renderHeaders={!!renderHeaders}
-            >
-                {curData && curData.map((row) => (
-                    row.groupedData ?
-                        <GroupedTableRow
-                            value={row.groupedBy?.value || ''}
-                            depth={depth}
-                            row={row}
-                            fields={[...fields]}
-                            key={row.id}
-                        />
-                        :
-                        <TableRowWrapper key={row.id}>
-                            {fields.map((field) => (
-                                <TableDetail key={String(field.key)} >
-                                    {field.renderComponent
-                                        ? field.renderComponent(row)
-                                        : row[field.key as never]}
-                                </TableDetail>
-                            ))}
-                        </TableRowWrapper>
-                ))}
+        <Paper
+            elevation={2}
+            sx={{
+                width: '100%',
+                overflow: 'hidden',
+                borderRadius: 2,
+            }}
+        >
+            <TableContainer component={TableOverflowContainer}>
+                <TableConditional
+                    renderHeaders={!!renderHeaders}
+                >
+                    {curData && curData.map((row) => (
+                        row.groupedData ?
+                            <GroupedTableRow
+                                value={row.groupedBy?.value || ''}
+                                depth={depth}
+                                row={row}
+                                fields={[...fields]}
+                                key={row.id}
+                            />
+                            :
+                            <TableRowWrapper
+                                key={row.id}
+                                hover
+                                sx={{
+                                    '&:last-child td, &:last-child th': { border: 0 },
+                                    '&:hover': {
+                                        backgroundColor: 'action.hover',
+                                    },
+                                    transition: 'background-color 0.2s ease-in-out',
+                                }}
+                            >
+                                {fields.map((field) => (
+                                    <TableDetail key={String(field.key)} >
+                                        {field.renderComponent
+                                            ? field.renderComponent(row as T)
+                                            : row[field.key as never]}
+                                    </TableDetail>
+                                ))}
+                            </TableRowWrapper>
+                    ))}
 
-            </TableConditional>
-        </TableOverflowContainer>
+                </TableConditional>
+            </TableContainer>
+        </Paper>
         <Pagination<T> />
     </TableContext.Provider >
 };

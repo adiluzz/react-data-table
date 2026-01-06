@@ -1,8 +1,9 @@
 export type SortDirection = 'asc' | 'desc';
 
+// Public API - users work with T directly
 export interface TableField<T = object> {
     key: keyof T | string | number | symbol;
-    renderComponent?: (row: BaseRow<T>) => JSX.Element;
+    renderComponent?: (row: T) => JSX.Element;
     headerText: string;
     sortable?: boolean;
     sorted?: SortDirection;
@@ -11,6 +12,13 @@ export interface TableField<T = object> {
     filterable?: boolean;
 }
 
+// Public API - users provide T[] directly
+export type DataTableProps<T> = {
+    data: T[];
+    fields: TableField<T>[];
+};
+
+// Internal types for grouping (not exported in public API)
 export type GroupedRow<T> = {
     groupedBy?: {
         groupField: Grouping<T>;
@@ -26,19 +34,18 @@ export type NonGroupedRow<T> = {
     id?: string;
 }
 
+// Internal type for rows with grouping support
 export type BaseRow<T = Record<string, never>> = NonGroupedRow<T> & GroupedRow<T>;
 
-export type Grouping<T> = keyof BaseRow<T> | string | number | symbol;
-
-export type DataTableProps<T> = {
-    data: BaseRow<T>[];
-    fields: TableField<T>[];
-};
+export type Grouping<T> = keyof T | string | number | symbol;
 
 export type DragHeaderStart<T> = (col: keyof T, ev: React.DragEvent<HTMLTableHeaderCellElement>) => void;
 export type SortTableEvent<T> = (col: keyof T, direction: SortDirection) => void;
 
-export type TableProps<T> = DataTableProps<T> & {
+// Internal type for Table component (uses BaseRow for grouping support)
+export type TableProps<T> = {
+    data: BaseRow<T>[];
+    fields: TableField<T>[];
     renderHeaders?: boolean;
     depth?: number;
 }

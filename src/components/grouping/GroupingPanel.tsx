@@ -1,14 +1,17 @@
-import { FC } from "react";
+import { FC, useState } from "react";
 import DeletableOption from '../common/DeletableOption';
 import { useDataTableContext } from "../data_table/DataTable.context";
 import { Grouping } from "../data_table/DataTable.interface";
-import { GroupingPanelWrapper } from './Grouping.components';
+import { GroupingPanelWrapper, GroupingPlaceholder } from './Grouping.components';
 
 
 const GroupingPanel: FC = <T,>() => {
     const ctx = useDataTableContext<T>();
+    const [isDragOver, setIsDragOver] = useState(false);
+
     const onDrop = (ev: React.DragEvent<HTMLDivElement>) => {
         ev.preventDefault();
+        setIsDragOver(false);
         const field: Grouping<T> = ev.dataTransfer.getData("text");
         if (field && ctx?.setTableGroupings) {
             ctx?.setTableGroupings((groups) => {
@@ -37,8 +40,16 @@ const GroupingPanel: FC = <T,>() => {
 
     return <GroupingPanelWrapper
         id='grouping-wrapper'
-        onDragOver={(ev => ev.preventDefault())}
+        onDragOver={(ev) => {
+            ev.preventDefault();
+            setIsDragOver(true);
+        }}
+        onDragLeave={(ev) => {
+            ev.preventDefault();
+            setIsDragOver(false);
+        }}
         onDrop={onDrop}
+        className={isDragOver ? 'drag-over' : ''}
     >
         {
             ctx?.tableGroupings?.map(field =>
@@ -52,7 +63,9 @@ const GroupingPanel: FC = <T,>() => {
         }
         {
             !ctx?.tableGroupings?.length &&
-            <div>Drop column headers here to group data</div>
+            <GroupingPlaceholder>
+                Drop column headers here to group data
+            </GroupingPlaceholder>
         }
     </GroupingPanelWrapper>
 

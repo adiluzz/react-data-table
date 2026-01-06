@@ -1,21 +1,39 @@
-import styled from "styled-components";
-import { darkBorder, defaultBorder } from "../common/classes";
+import { Box, InputBase } from "@mui/material";
+import { styled } from "@mui/material/styles";
 
-export const SearchBarWrapper = styled.div<{ $focused: boolean }>(({ $focused }) => {
+export const SearchBarWrapper = styled(Box, {
+    shouldForwardProp: (prop) => prop !== '$focused',
+})<{ $focused: boolean }>(({ $focused, theme }) => {
     return {
         display: 'flex',
         alignItems: 'center',
-        border: $focused ? darkBorder : defaultBorder,
+        border: `1px solid ${$focused ? theme.palette.primary.main : theme.palette.divider}`,
         alignSelf: 'center',
-        padding: '10px 6px',
-        borderRadius: 6,
-        height: 25,
-        width: 350,
-        justifyContent:'space-between'
+        padding: theme.spacing(1, 1.5),
+        borderRadius: theme.shape.borderRadius,
+        minHeight: 40,
+        width: 'auto',
+        minWidth: 250,
+        maxWidth: 350,
+        justifyContent: 'space-between',
+        backgroundColor: theme.palette.background.paper,
+        transition: 'border-color 0.2s ease-in-out, box-shadow 0.2s ease-in-out',
+        boxShadow: $focused ? `0 0 0 2px ${theme.palette.primary.main}20` : 'none',
+        '&:hover': {
+            borderColor: theme.palette.primary.main,
+        },
     }
 });
 
-export const SearchInput = styled.input({
-    border: 'none',
-    outline: 'none'
-});
+export const SearchInput = styled(InputBase)(({ theme }) => ({
+    flex: 1,
+    fontSize: '0.875rem',
+    color: theme.palette.text.primary,
+    '& .MuiInputBase-input': {
+        padding: 0,
+        '&::placeholder': {
+            color: theme.palette.text.secondary,
+            opacity: 1,
+        },
+    },
+}));

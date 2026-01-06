@@ -1,31 +1,92 @@
 # React Turbo Table
 
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
+
+A fast, feature-rich React table component with grouping, sorting, filtering, and pagination capabilities. Built with Material UI for a beautiful, modern interface.
+
 This table is fast, has grouping abilities and can work with up to 10 million rows with grouping.
 
 
 ## Installation
 
-Run
+Install the package and its required peer dependencies:
 
 ```console
-npm i react-turbo-table
+npm i react-turbo-table @mui/material @mui/icons-material @emotion/react @emotion/styled
 ```
 
-## Usage
+**Required Peer Dependencies:**
+- `react` (>=16.8.0)
+- `react-dom` (>=16.8.0)
+- `@mui/material` (^5.0.0)
+- `@mui/icons-material` (^5.0.0)
+- `@emotion/react` (^11.0.0)
+- `@emotion/styled` (^11.0.0)
 
-This is a simple usage via API.
+## Setup
+
+### Step 1: Install Peer Dependencies
+
+Make sure you have all required dependencies installed:
+
+```console
+npm install react react-dom @mui/material @mui/icons-material @emotion/react @emotion/styled
+```
+
+### Step 2: Wrap Your App with ThemeProvider
+
+**Important**: This component requires Material UI's `ThemeProvider`. Make sure to wrap your app with it:
+
+```typescript
+import { ThemeProvider, createTheme } from '@mui/material/styles';
+import CssBaseline from '@mui/material/CssBaseline';
+
+const theme = createTheme();
+
+function App() {
+  return (
+    <ThemeProvider theme={theme}>
+      <CssBaseline />
+      {/* Your app content */}
+    </ThemeProvider>
+  );
+}
+```
+
+## Import Options
+
+You can import the component in several ways:
+
+```typescript
+// Option 1: Named import (Recommended)
+import { DataTable, TableField } from 'react-turbo-table';
+
+// Option 2: Named import (TurboTable alias)
+import { TurboTable, TableField } from 'react-turbo-table';
+
+// Option 3: Default import
+import DataTable, { TableField } from 'react-turbo-table';
+```
+
+**Note:** You also need to import the CSS file:
+
+```typescript
+import 'react-turbo-table/dist/style.css';
+```
+
+## Basic Usage Example
 
 ```typescript
 import { useCallback, useEffect, useState } from 'react';
-import DataTable, { TableField } from 'react-turbo-table';
+import { DataTable, TableField } from 'react-turbo-table';
 import './App.css';
 
-type User = {
+interface User {
     id: string;
     name: string;
     username: string;
+    email: string;
 }
-
 
 function App() {
     const [users, setUsers] = useState<User[]>();
@@ -35,13 +96,14 @@ function App() {
         { key: "name", headerText: "Name", sortable: true, groupable: true },
         { key: "username", headerText: "Username", sortable: true, groupable: true },
         {
-            renderComponent: (row) => {
+            renderComponent: (row: User) => {
+                // ✅ Full type safety - TypeScript knows all properties exist
                 return (
-                    <div>Name: {row.name}. Username {row.username}</div>
+                    <div>Name: {row.name}. Username: {row.username}</div>
                 );
             },
-            headerText: "Delete",
-            key: "delete",
+            headerText: "Custom",
+            key: "custom",
         },
     ];
 
@@ -50,7 +112,6 @@ function App() {
         const users: User[] = await res.json();
         setUsers(users);
     }, []);
-
 
     useEffect(() => {
         fetchUserData();
@@ -64,7 +125,45 @@ function App() {
 }
 
 export default App;
+```
 
+## TypeScript Type Safety
+
+The component provides full TypeScript type safety. When you use `renderComponent`, you get the exact type `T` you provided:
+
+```typescript
+interface Product {
+    id: number;
+    name: string;
+    price: number;
+    category: string;
+}
+
+const fields: TableField<Product>[] = [
+    {
+        key: 'name',
+        headerText: 'Product Name',
+        sortable: true,
+        renderComponent: (row: Product) => {
+            // ✅ TypeScript knows row.name, row.price, etc. all exist
+            return <span>{row.name} - ${row.price}</span>;
+        }
+    },
+    {
+        key: 'category',
+        headerText: 'Category',
+        filterable: true
+    },
+];
+
+function ProductTable() {
+    const products: Product[] = [
+        { id: 1, name: 'Laptop', price: 999, category: 'Electronics' },
+        { id: 2, name: 'Desk', price: 299, category: 'Furniture' },
+    ];
+
+    return <DataTable data={products} fields={fields} />;
+}
 ```
 
 There are more examples in the src/examples directory.
@@ -79,8 +178,107 @@ This table currently has 2 props:
 
 ### Fields parameters
 
-- <code>key</code> - (string) A unique key for this column.
-- <code>headerText</code> - (string) The text shown in the table header.
-- <code>sortable</code> - (boolean) Indicates if this column can be sorted.
-- <code>groupable</code> - (boolean) Indicates if this column can be grouped.
-- <code>renderComponent</code> - (JSX.element) A component to render instead of the value. This function gets the row it this table detail.
+- <code>key</code> - `keyof T | string | number | symbol` - A unique key for this column. Can be a property of your data type or a custom string.
+- <code>headerText</code> - `string` - The text shown in the table header.
+- <code>sortable</code> - `boolean` (optional) - Indicates if this column can be sorted. Click the header to sort.
+- <code>groupable</code> - `boolean` (optional) - Indicates if this column can be grouped. Drag the header to the grouping area to group by this column.
+- <code>searchable</code> - `boolean` (optional) - Indicates if this column can be searched using the search bar.
+- <code>filterable</code> - `boolean` (optional) - Indicates if this column can be filtered using the filter panel.
+- <code>renderComponent</code> - `(row: T) => JSX.Element` (optional) - A function that receives the row data (type `T`) and returns a React element. Provides full TypeScript type safety. If not provided, the value of `row[key]` will be displayed.
+- <code>sorted</code> - `'asc' | 'desc'` (optional, internal) - Current sort direction. Managed internally by the component.
+
+## Troubleshooting
+
+### Error: "Cannot read properties of undefined (reading 'ReactCurrentDispatcher')"
+
+This error occurs when React is not properly available. Make sure:
+
+1. **React is installed** in your project:
+   ```console
+   npm install react react-dom
+   ```
+
+2. **React is not bundled** - The package expects React to be provided by your application, not bundled internally.
+
+3. **Check React version compatibility** - The package supports React >=16.8.0, including React 19.
+
+4. **Verify Material UI is installed**:
+   ```console
+   npm install @mui/material @mui/icons-material @emotion/react @emotion/styled
+   ```
+
+### Import Errors
+
+If you get import errors, make sure you're using one of the supported import styles:
+
+```typescript
+// ✅ Correct - Default import
+import DataTable, { TableField } from 'react-turbo-table';
+
+// ✅ Correct - Named import
+import { DataTable, TableField } from 'react-turbo-table';
+
+// ✅ Correct - TurboTable alias
+import { TurboTable, TableField } from 'react-turbo-table';
+```
+
+### TypeScript Type Errors
+
+If you're getting type errors with `renderComponent`, make sure you're using the type `T` directly:
+
+```typescript
+// ✅ Correct - Full type safety
+renderComponent: (row: User) => {
+    return <span>{row.name}</span>; // TypeScript knows 'name' exists
+}
+
+// ❌ Incorrect - Don't use 'any'
+renderComponent: (row: any) => {
+    return <span>{row.name}</span>; // Loses type safety
+}
+```
+
+## Complete Example
+
+Here's a complete working example:
+
+```typescript
+import { ThemeProvider, createTheme } from '@mui/material/styles';
+import CssBaseline from '@mui/material/CssBaseline';
+import { DataTable, TableField } from 'react-turbo-table';
+import { useState } from 'react';
+
+interface User {
+    id: string;
+    name: string;
+    email: string;
+}
+
+const theme = createTheme();
+
+function App() {
+    const users: User[] = [
+        { id: '1', name: 'John Doe', email: 'john@example.com' },
+        { id: '2', name: 'Jane Smith', email: 'jane@example.com' },
+    ];
+
+    const fields: TableField<User>[] = [
+        { key: 'id', headerText: 'ID', sortable: true },
+        { key: 'name', headerText: 'Name', sortable: true, groupable: true },
+        { key: 'email', headerText: 'Email', sortable: true },
+    ];
+
+    return (
+        <ThemeProvider theme={theme}>
+            <CssBaseline />
+            <DataTable data={users} fields={fields} />
+        </ThemeProvider>
+    );
+}
+
+export default App;
+```
+
+## License
+
+This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.

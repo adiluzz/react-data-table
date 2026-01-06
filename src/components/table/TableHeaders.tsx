@@ -1,6 +1,7 @@
 import ArrowDropDownIcon from '@mui/icons-material/ArrowDropDown';
 import ArrowDropUpIcon from '@mui/icons-material/ArrowDropUp';
 import SortIcon from '@mui/icons-material/Sort';
+import { TableRow } from '@mui/material';
 import { FC } from "react";
 import { SortDirection } from '../data_table/DataTable.interface';
 import { TableHeaderIconWrapper, TableHeaderTextWrapper, TableHeaderWrapper } from './Table.components';
@@ -32,7 +33,7 @@ const TableHeaders: FC = <T,>() => {
         }));
     };
 
-    return <tr key={'table-headers'}>
+    return <TableRow key={'table-headers'}>
         {ctx?.columns && ctx?.columns.map((field) => (
             <TableHeaderWrapper
                 draggable={field.groupable}
@@ -50,18 +51,46 @@ const TableHeaders: FC = <T,>() => {
                     <TableHeaderIconWrapper>
                         {(
                             field.sorted === 'desc' ?
-                                <ArrowDropUpIcon onClick={() => {
-                                    sortData(field.key as keyof T, 'asc');
-                                }} />
+                                <ArrowDropUpIcon
+                                    sx={{
+                                        cursor: 'pointer',
+                                        fontSize: '20px',
+                                        color: 'primary.main',
+                                        transition: 'color 0.2s ease-in-out',
+                                        '&:hover': {
+                                            color: 'primary.dark',
+                                        },
+                                    }}
+                                    onClick={() => {
+                                        sortData(field.key as keyof T, 'asc');
+                                    }}
+                                />
                                 : field.sorted === 'asc' ?
                                     <ArrowDropDownIcon
-                                        style={{ color: !field.sorted ? '#cdd1ce' : 'unset' }}
+                                        sx={{
+                                            cursor: 'pointer',
+                                            fontSize: '20px',
+                                            color: 'primary.main',
+                                            transition: 'color 0.2s ease-in-out',
+                                            '&:hover': {
+                                                color: 'primary.dark',
+                                            },
+                                        }}
                                         onClick={() => {
                                             sortData(field.key as keyof T, 'desc');
                                         }}
                                     />
                                     :
                                     <SortIcon
+                                        sx={{
+                                            cursor: 'pointer',
+                                            fontSize: '20px',
+                                            color: 'action.disabled',
+                                            transition: 'color 0.2s ease-in-out',
+                                            '&:hover': {
+                                                color: 'action.active',
+                                            },
+                                        }}
                                         onClick={() => {
                                             sortData(field.key as keyof T, 'asc');
                                         }}
@@ -71,7 +100,7 @@ const TableHeaders: FC = <T,>() => {
                 }
             </TableHeaderWrapper>
         ))}
-    </tr>
+    </TableRow>
 }
 
 export default TableHeaders;

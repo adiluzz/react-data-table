@@ -1,3 +1,4 @@
+import { Box, Paper } from "@mui/material";
 import { FC, useCallback, useEffect, useMemo, useState } from "react";
 import DeletableOption from "../common/DeletableOption";
 import { useDataTableContext } from "../data_table/DataTable.context";
@@ -54,7 +55,7 @@ const FilterPanel: FC = () => {
 
 
     return <FilterGroupsContainer>
-        <div>
+        <Box sx={{ position: 'relative' }}>
             <SelectFiltersButton
                 className="clickable"
                 onClick={() => {
@@ -69,27 +70,39 @@ const FilterPanel: FC = () => {
                     placeholder="Add Filters..."
                 />
             </SelectFiltersButton>
-            <FilterSelectContainer $open={filtersOpen} $time='0.2s'>
-                {
-                    filteredData?.map(filter => {
-                        return <FilterGroup
-                            {...filter}
-                            key={filter.property}
-                            headerText={ctx?.getHeader(filter.property)?.headerText}
-                            onFilterClicked={(clickedFilter) => {
-                                ctx?.setSelectedFilters(prev => {
-                                    if (prev) {
-                                        return prev.concat([clickedFilter]);
-                                    } else {
-                                        return [clickedFilter];
-                                    }
-                                })
-                            }}
-                        />
-                    })
-                }
-            </FilterSelectContainer>
-        </div>
+            <Paper
+                elevation={4}
+                sx={{
+                    position: 'absolute',
+                    top: '100%',
+                    left: 0,
+                    mt: 1,
+                    zIndex: 1300,
+                    overflow: 'hidden',
+                }}
+            >
+                <FilterSelectContainer $open={filtersOpen} $time='0.2s'>
+                    {
+                        filteredData?.map(filter => {
+                            return <FilterGroup
+                                {...filter}
+                                key={filter.property}
+                                headerText={ctx?.getHeader(filter.property)?.headerText}
+                                onFilterClicked={(clickedFilter) => {
+                                    ctx?.setSelectedFilters(prev => {
+                                        if (prev) {
+                                            return prev.concat([clickedFilter]);
+                                        } else {
+                                            return [clickedFilter];
+                                        }
+                                    })
+                                }}
+                            />
+                        })
+                    }
+                </FilterSelectContainer>
+            </Paper>
+        </Box>
         {
             ctx?.selectedFilters?.map(oneFilter => {
                 return <DeletableOption

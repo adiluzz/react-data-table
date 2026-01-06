@@ -21,6 +21,9 @@ export default defineConfig(() => ({
     //   include: ['src/'],
     // }),
   ],
+  server: {
+    port: 4000,
+  },
   build: {
     lib: {
       entry: resolve('src', 'main.tsx'),
@@ -29,7 +32,31 @@ export default defineConfig(() => ({
       fileName: (format) => `react-turbo-table.${format}.js`,
     },
     rollupOptions: {
-      external: [...Object.keys(packageJson.peerDependencies)],
+      external: (id) => {
+        // Externalize all peer dependencies and their sub-paths
+        const peerDeps = Object.keys(packageJson.peerDependencies || {});
+        return peerDeps.some(dep => id === dep || id.startsWith(`${dep}/`)) ||
+               id === 'react' ||
+               id === 'react-dom' ||
+               id === 'react/jsx-runtime' ||
+               id.startsWith('react/') ||
+               id.startsWith('@mui/') ||
+               id.startsWith('@emotion/') ||
+               id === 'styled-components';
+      },
+      output: {
+        exports: 'named',
+        globals: {
+          'react': 'React',
+          'react-dom': 'ReactDOM',
+          'react/jsx-runtime': 'ReactJSXRuntime',
+          '@mui/material': 'MaterialUI',
+          '@mui/icons-material': 'MaterialUIIcons',
+          '@emotion/react': 'EmotionReact',
+          '@emotion/styled': 'EmotionStyled',
+          'styled-components': 'styled',
+        },
+      },
     },
   },
 }))

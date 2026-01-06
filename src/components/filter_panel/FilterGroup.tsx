@@ -1,3 +1,4 @@
+import { Box, Typography } from "@mui/material";
 import { FC, useMemo, useState } from "react";
 import { FilterGroupContainer, FilterGroupHeader, FilterGroupWrapper, ShowMore } from "./FilterPanel.components";
 import { avoidCloseFiltersMenu } from "./FilterPanel.const";
@@ -26,7 +27,23 @@ const FilterGroup: FC<FilterGroupProps> = ({ property, values, onFilterClicked, 
                     }}
                     key={val.value}
                     className="clickable"
-                >{val.value} - {val.count}</FilterGroupWrapper>
+                >
+                    <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                        <Typography variant="body2" sx={{ color: 'text.primary' }}>
+                            {val.value}
+                        </Typography>
+                        <Typography
+                            variant="body2"
+                            sx={{
+                                color: 'text.secondary',
+                                fontWeight: 500,
+                                ml: 2,
+                            }}
+                        >
+                            ({val.count})
+                        </Typography>
+                    </Box>
+                </FilterGroupWrapper>
             )
         }
         {

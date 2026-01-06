@@ -1,3 +1,4 @@
+import { Box } from "@mui/material";
 import { useCallback, useEffect, useMemo, useState } from "react";
 import FilterPanel from "../filter_panel/FilterPanel";
 import { Filter, FilterResult } from "../filter_panel/FilterPanel.interface";
@@ -22,12 +23,19 @@ const DataTable = <T,>({ data, fields }: DataTableProps<T>) => {
 	const tableHasSearchableFields = useMemo(() => hasFields('searchable', fields), [fields]);
 	const tableHasFilterableFields = useMemo(() => hasFields('filterable', fields), [fields]);
 
+	// Convert T[] to BaseRow<T>[] internally for grouping support
+	const convertToBaseRow = useCallback((data: T[]): BaseRow<T>[] => {
+		return data.map((row, index) => ({
+			...row,
+			id: (row as { id?: string }).id || String(index),
+		} as BaseRow<T>));
+	}, []);
 
 	const groupTableData = useCallback((data: BaseRow<T>[]) => {
 		let tableRawData = [...data];
 		const filtersData: Filter[] = [];
 		if (searchTerm && columns) {
-			tableRawData = searchFilter(tableRawData, columns, searchTerm);
+			tableRawData = searchFilter(tableRawData, columns as TableField<any>[], searchTerm);
 		}
 		if (selectedFilters) {
 			for (let i = 0; i < selectedFilters.length; i++) {
@@ -59,8 +67,9 @@ const DataTable = <T,>({ data, fields }: DataTableProps<T>) => {
 
 	useEffect(() => {
 		setColumns(fields);
-		groupTableData(data);
-	}, [data, fields, groupTableData, tableGroupings]);
+		const baseRowData = convertToBaseRow(data);
+		groupTableData(baseRowData);
+	}, [data, fields, groupTableData, tableGroupings, convertToBaseRow]);
 	return (
 		<DataTableContext.Provider
 			value={{
@@ -86,7 +95,7 @@ const DataTable = <T,>({ data, fields }: DataTableProps<T>) => {
 			{
 				(tableHasGroupableFields || tableHasSearchableFields) &&
 				<BottomPanelWrapper>
-					{tableHasGroupableFields && <GroupingPanel />}
+					{tableHasGroupableFields ? <GroupingPanel /> : <Box />}
 					{
 						tableHasSearchableFields &&
 						<SearchBar

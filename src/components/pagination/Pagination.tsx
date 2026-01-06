@@ -53,7 +53,17 @@ const Pagination = <T,>() => {
         }
         {
             ctx && ctx?.tableData?.length &&
-            <div>Showing {ctx?.page * ctx?.pageSize} - {((ctx?.page + 1) * ctx?.pageSize) < ctx?.tableData?.length ? (ctx?.page + 1) * ctx?.pageSize : ctx.tableData?.length} of {numberWithCommas(ctx?.tableData?.length)}</div>
+            <div>
+                Showing
+                {numberWithCommas(ctx?.page * ctx?.pageSize)} -
+
+                {numberWithCommas(
+                    ((ctx?.page + 1) * ctx?.pageSize) < ctx?.tableData?.length ?
+                    (ctx?.page + 1) * ctx?.pageSize
+                    : ctx.tableData?.length)
+                }
+
+                of {numberWithCommas(ctx?.tableData?.length)}</div>
         }
         <PagesWrapper>
             {
@@ -87,7 +97,7 @@ const Pagination = <T,>() => {
                     }}
                     $isCurrentPage={ctx?.page === page}
                 >
-                    {page + 1}
+                    {numberWithCommas(page + 1)}
                 </PageNumber>
             )}
             {

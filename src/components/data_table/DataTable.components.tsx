@@ -1,8 +1,12 @@
-import styled from "styled-components";
+import { Box } from "@mui/material";
+import { styled } from "@mui/material/styles";
 
-export const BottomPanelWrapper = styled.div({
+export const BottomPanelWrapper = styled(Box)(({ theme }) => ({
     display: 'flex',
     justifyContent: 'space-between',
-    gap: 30,
-    marginBottom: 30,
-});
+    gap: theme.spacing(2),
+    marginBottom: theme.spacing(4),
+    flexWrap: 'nowrap',
+    alignItems: 'center',
+    width: '100%',
+}));
