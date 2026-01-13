@@ -15,11 +15,7 @@ import { getAllRowIdsFromGroup, getUniqueValues, groupData, hasFields } from './
 const DataTable = <T,>({ data, fields, selectable = false, onSelectionChange }: DataTableProps<T>) => {
 	const [tableData, setTableData] = useState<BaseRow<T>[]>();
 	const [columns, setColumns] = useState<TableField<T>[]>();
-	// For testing: Initialize with grouping by first groupable field if available
-	const firstGroupableField = fields.find(f => f.groupable)?.key;
-	const [tableGroupings, setTableGroupings] = useState<Grouping<T>[] | undefined>(
-		firstGroupableField ? [firstGroupableField as Grouping<T>] : undefined
-	);
+	const [tableGroupings, setTableGroupings] = useState<Grouping<T>[] | undefined>(undefined);
 	const [searchTerm, setSearchTerm] = useState<string>('');
 	const [filterPanelState, setFilterPanelState] = useState<Filter[]>();
 	const [selectedFilters, setSelectedFilters] = useState<FilterResult[]>()
