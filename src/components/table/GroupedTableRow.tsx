@@ -23,8 +23,7 @@ type GroupedTableRowProps<T> = {
 
 const GroupedTableRow = <T,>(
     { row, value, depth, fields, selectable, selectedIds, onRowSelectionChange, onGroupSelectionChange }: GroupedTableRowProps<T>) => {
-    // For testing: Expand first group at depth 0
-    const [open, setOpen] = useState<boolean>(depth === 0);
+    const [open, setOpen] = useState<boolean>(false);
     const ctx = useDataTableContext();
 
     // Calculate selection state for this group

@@ -1,4 +1,3 @@
-import { useEffect } from 'react';
 import mockData from '../../tests/MOCK_DATA.json';
 import '../App.css';
 import DataTable from '../App.tsx';
@@ -27,14 +26,6 @@ function DataTableWithGrouping() {
 	];
 
 	const ctx = useDataTableContext<MockData>();
-	
-	// Set default grouping after mount
-	useEffect(() => {
-		if (ctx?.setTableGroupings && !ctx?.tableGroupings?.length) {
-			// Group by first_name to test styling
-			ctx.setTableGroupings(['first_name' as keyof MockData]);
-		}
-	}, [ctx?.setTableGroupings, ctx?.tableGroupings?.length]);
 
 	return (
 		<DataTable
