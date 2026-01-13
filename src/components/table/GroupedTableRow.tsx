@@ -115,18 +115,17 @@ const GroupedTableRow = <T,>(
             margin: 0,
             '& .MuiTableCell-root': {
                 borderBottom: 'none !important',
-                padding: '0 !important',
                 margin: 0,
                 verticalAlign: 'top',
                 height: 'auto',
             },
         }}>
             {selectable && (
-                <TableDetail key="__select" $width={50} $isCheckbox={true} sx={{ border: 'none !important', padding: '0 !important', verticalAlign: 'top', height: 'auto' }}>
+                <TableDetail key="__select" $width={50} $isCheckbox={true} sx={{ border: 'none !important', verticalAlign: 'top', height: 'auto' }}>
                     {/* Empty cell to align with checkbox column */}
                 </TableDetail>
             )}
-            <FullWidthTableDetail colSpan={ctx?.columns?.length || 0} sx={{ padding: '0 !important', border: 'none !important', verticalAlign: 'top', height: 'auto' }}>
+            <FullWidthTableDetail colSpan={ctx?.columns?.length || 0} sx={{ border: 'none !important', verticalAlign: 'top', height: 'auto' }}>
                 <Collapsible $open={open}>
                     <Box sx={{ 
                         overflow: 'visible', 
