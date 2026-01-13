@@ -1,7 +1,6 @@
 import mockData from '../../tests/MOCK_DATA.json';
 import '../App.css';
 import DataTable from '../App.tsx';
-import { useDataTableContext } from '../components/data_table/DataTable.context';
 import { TableField } from '../components/data_table/DataTable.interface';
 
 type MockData = {
@@ -24,8 +23,6 @@ function DataTableWithGrouping() {
 		{ key: "gender", headerText: "Gender", sortable: true, groupable: true, filterable: true },
 		{ key: "ip_address", headerText: "IP Address", sortable: true, groupable: true },
 	];
-
-	const ctx = useDataTableContext<MockData>();
 
 	return (
 		<DataTable
