@@ -5,6 +5,7 @@ export { default as DataTable } from './App';
 export { default as TurboTable } from './App';
 
 // Default export (for convenience)
+// eslint-disable-next-line react-refresh/only-export-components
 export { default } from './App';
 
 // Type exports

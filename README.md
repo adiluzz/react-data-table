@@ -68,12 +68,6 @@ import { TurboTable, TableField } from 'react-turbo-table';
 import DataTable, { TableField } from 'react-turbo-table';
 ```
 
-**Note:** You also need to import the CSS file:
-
-```typescript
-import 'react-turbo-table/dist/style.css';
-```
-
 ## Basic Usage Example
 
 ```typescript
@@ -90,6 +84,7 @@ interface User {
 
 function App() {
     const [users, setUsers] = useState<User[]>();
+    const [selectedIds, setSelectedIds] = useState<string[]>([]);
 
     const tableFields: TableField<User>[] = [
         { key: "id", headerText: "ID", sortable: true, groupable: true },
@@ -119,7 +114,20 @@ function App() {
 
     return (
         <div className="App">
-            {users && <DataTable data={users} fields={tableFields} />}
+            {users && (
+                <DataTable
+                    data={users}
+                    fields={tableFields}
+                    selectable={true}
+                    onSelectionChange={(ids) => {
+                        setSelectedIds(ids);
+                        console.log('Selected IDs:', ids);
+                    }}
+                />
+            )}
+            {selectedIds.length > 0 && (
+                <p>Selected {selectedIds.length} row(s)</p>
+            )}
         </div>
     );
 }
@@ -132,6 +140,9 @@ export default App;
 The component provides full TypeScript type safety. When you use `renderComponent`, you get the exact type `T` you provided:
 
 ```typescript
+import { useState } from 'react';
+import { DataTable, TableField } from 'react-turbo-table';
+
 interface Product {
     id: number;
     name: string;
@@ -144,6 +155,7 @@ const fields: TableField<Product>[] = [
         key: 'name',
         headerText: 'Product Name',
         sortable: true,
+        width: 200, // Fixed width in pixels
         renderComponent: (row: Product) => {
             // ✅ TypeScript knows row.name, row.price, etc. all exist
             return <span>{row.name} - ${row.price}</span>;
@@ -152,17 +164,38 @@ const fields: TableField<Product>[] = [
     {
         key: 'category',
         headerText: 'Category',
-        filterable: true
+        filterable: true,
+        // No width specified - column will size to content
+    },
+    {
+        key: 'price',
+        headerText: 'Price',
+        sortable: true,
+        width: 150, // Fixed width in pixels
     },
 ];
 
 function ProductTable() {
+    const [selectedIds, setSelectedIds] = useState<string[]>([]);
+    
     const products: Product[] = [
         { id: 1, name: 'Laptop', price: 999, category: 'Electronics' },
         { id: 2, name: 'Desk', price: 299, category: 'Furniture' },
     ];
 
-    return <DataTable data={products} fields={fields} />;
+    return (
+        <>
+            <DataTable
+                data={products}
+                fields={fields}
+                selectable={true}
+                onSelectionChange={(ids) => setSelectedIds(ids)}
+            />
+            {selectedIds.length > 0 && (
+                <p>Selected {selectedIds.length} product(s)</p>
+            )}
+        </>
+    );
 }
 ```
 
@@ -171,10 +204,68 @@ There are more examples in the src/examples directory.
 
 ## Props
 
-This table currently has 2 props:
+This table currently has 4 props:
 
 1. <code>data</code> - your data.
 2. <code>fields</code> - your fields. This where most of the configuration is made.
+3. <code>selectable</code> - `boolean` (optional) - Enables row selection. When `true`, adds a checkbox column as the first column.
+4. <code>onSelectionChange</code> - `(selectedIds: string[]) => void` (optional) - Callback function that is called whenever the selection changes. Receives an array of selected row IDs.
+
+### Row Selection
+
+When `selectable` is set to `true`, the table will display a checkbox column as the first column. Users can:
+
+- Select individual rows by clicking their checkboxes
+- Select all rows using the checkbox in the header
+- Select entire groups (when grouping is enabled) - selecting a group row will select all rows within that group, including nested groups
+
+**Example with Selection:**
+
+```typescript
+import { useState } from 'react';
+import { DataTable, TableField } from 'react-turbo-table';
+
+interface User {
+    id: string;
+    name: string;
+    email: string;
+}
+
+function App() {
+    const [selectedIds, setSelectedIds] = useState<string[]>([]);
+    
+    const fields: TableField<User>[] = [
+        { key: 'id', headerText: 'ID' },
+        { key: 'name', headerText: 'Name' },
+        { key: 'email', headerText: 'Email' },
+    ];
+
+    const users: User[] = [
+        { id: '1', name: 'John Doe', email: 'john@example.com' },
+        { id: '2', name: 'Jane Smith', email: 'jane@example.com' },
+    ];
+
+    return (
+        <div>
+            <DataTable
+                data={users}
+                fields={fields}
+                selectable={true}
+                onSelectionChange={(ids) => {
+                    setSelectedIds(ids);
+                    console.log('Selected IDs:', ids);
+                }}
+            />
+            <p>Selected: {selectedIds.length} rows</p>
+        </div>
+    );
+}
+```
+
+**Important Notes:**
+- Each row must have a unique `id` property. If your data doesn't have an `id`, the component will automatically generate one based on the row index.
+- When a grouped row is selected, all rows within that group (including nested groups) are automatically selected.
+- The `onSelectionChange` callback receives an array of all selected row IDs, regardless of whether they were selected individually or as part of a group.
 
 ### Fields parameters
 
@@ -185,6 +276,7 @@ This table currently has 2 props:
 - <code>searchable</code> - `boolean` (optional) - Indicates if this column can be searched using the search bar.
 - <code>filterable</code> - `boolean` (optional) - Indicates if this column can be filtered using the filter panel.
 - <code>renderComponent</code> - `(row: T) => JSX.Element` (optional) - A function that receives the row data (type `T`) and returns a React element. Provides full TypeScript type safety. If not provided, the value of `row[key]` will be displayed.
+- <code>width</code> - `number` (optional) - Column width in pixels. If not provided, the column width will be automatically determined based on its content.
 - <code>sorted</code> - `'asc' | 'desc'` (optional, internal) - Current sort direction. Managed internally by the component.
 
 ## Troubleshooting
@@ -257,6 +349,8 @@ interface User {
 const theme = createTheme();
 
 function App() {
+    const [selectedIds, setSelectedIds] = useState<string[]>([]);
+    
     const users: User[] = [
         { id: '1', name: 'John Doe', email: 'john@example.com' },
         { id: '2', name: 'Jane Smith', email: 'jane@example.com' },
@@ -271,7 +365,15 @@ function App() {
     return (
         <ThemeProvider theme={theme}>
             <CssBaseline />
-            <DataTable data={users} fields={fields} />
+            <DataTable
+                data={users}
+                fields={fields}
+                selectable={true}
+                onSelectionChange={(ids) => setSelectedIds(ids)}
+            />
+            {selectedIds.length > 0 && (
+                <p>Selected {selectedIds.length} row(s)</p>
+            )}
         </ThemeProvider>
     );
 }

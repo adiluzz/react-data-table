@@ -1,14 +1,20 @@
 import ArrowDropDownIcon from '@mui/icons-material/ArrowDropDown';
 import ArrowDropUpIcon from '@mui/icons-material/ArrowDropUp';
 import SortIcon from '@mui/icons-material/Sort';
-import { TableRow } from '@mui/material';
-import { FC } from "react";
-import { SortDirection } from '../data_table/DataTable.interface';
+import { Checkbox, TableRow } from '@mui/material';
+import { BaseRow, SortDirection } from '../data_table/DataTable.interface';
+import { getAllRowIdsFromGroup } from '../data_table/DataTable.utils';
 import { TableHeaderIconWrapper, TableHeaderTextWrapper, TableHeaderWrapper } from './Table.components';
 import { useTableContext } from './Table.context';
 
+type TableHeadersProps<T> = {
+    selectable?: boolean;
+    selectedIds?: Set<string>;
+    onRowSelectionChange?: (rowId: string, selected: boolean) => void;
+    onGroupSelectionChange?: (groupRow: BaseRow<T>, selected: boolean) => void;
+};
 
-const TableHeaders: FC = <T,>() => {
+const TableHeaders = <T,>({ selectable, selectedIds, onRowSelectionChange, onGroupSelectionChange }: TableHeadersProps<T>) => {
     const ctx = useTableContext<T>();
     const sortData = (field: keyof T, direction: SortDirection) => {
         const sortedData = ctx?.tableData?.sort((a, b) => {
@@ -33,8 +39,47 @@ const TableHeaders: FC = <T,>() => {
         }));
     };
 
+    const ctxData = ctx?.tableData || [];
+    const allRowIds = ctxData
+        .filter(row => !row.groupedData && row.id)
+        .map(row => row.id as string);
+    const allGroupRowIds = ctxData
+        .filter(row => row.groupedData)
+        .flatMap(row => {
+            if (!row.groupedData) return [];
+            return getAllRowIdsFromGroup(row);
+        });
+    const allSelectableIds = [...allRowIds, ...allGroupRowIds];
+    const allSelected = allSelectableIds.length > 0 && allSelectableIds.every(id => selectedIds?.has(id));
+    const someSelected = allSelectableIds.some(id => selectedIds?.has(id));
+
+    const handleSelectAll = (checked: boolean) => {
+        if (!ctx?.tableData) return;
+        ctx.tableData.forEach(row => {
+            if (row.groupedData && onGroupSelectionChange) {
+                onGroupSelectionChange(row, checked);
+            } else if (!row.groupedData && row.id && onRowSelectionChange) {
+                onRowSelectionChange(row.id, checked);
+            }
+        });
+    };
+
     return <TableRow key={'table-headers'}>
-        {ctx?.columns && ctx?.columns.map((field) => (
+        {selectable && (
+            <TableHeaderWrapper 
+                $draggable={false}
+                $isCheckbox={true}
+                className="checkbox-cell"
+            >
+                <Checkbox
+                    checked={allSelected}
+                    indeterminate={someSelected && !allSelected}
+                    onChange={(e) => handleSelectAll(e.target.checked)}
+                    onClick={(e) => e.stopPropagation()}
+                />
+            </TableHeaderWrapper>
+        )}
+        {ctx?.columns && ctx?.columns.map((field, index) => (
             <TableHeaderWrapper
                 draggable={field.groupable}
                 onDragStart={(ev) => {
@@ -42,6 +87,8 @@ const TableHeaders: FC = <T,>() => {
                 }}
                 key={String(field.key)}
                 $draggable={!!field.groupable}
+                $width={field.width}
+                sx={selectable && index === 0 ? { paddingLeft: '0 !important' } : undefined}
             >
                 <TableHeaderTextWrapper>
                     {field.headerText}

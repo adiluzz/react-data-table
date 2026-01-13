@@ -23,9 +23,9 @@ type DataTableState<T = Record<string, never>> = {
     getHeader: (property: string) => TableField<T> | undefined;
 }
 
-const DataTableContext = createContext<DataTableState<any> | null>(null);
+const DataTableContext = createContext<DataTableState<unknown> | null>(null);
 
-export function useDataTableContext<T = any>(): DataTableState<T> | null {
+export function useDataTableContext<T = unknown>(): DataTableState<T> | null {
     return useContext(DataTableContext) as DataTableState<T> | null;
 }
 export default DataTableContext;

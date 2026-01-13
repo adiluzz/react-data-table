@@ -9,16 +9,21 @@ import Table from '../table/Table';
 import { BottomPanelWrapper } from "./DataTable.components";
 import DataTableContext from './DataTable.context';
 import { BaseRow, DataTableProps, Grouping, TableField } from './DataTable.interface';
-import { getUniqueValues, groupData, hasFields } from './DataTable.utils';
+import { getAllRowIdsFromGroup, getUniqueValues, groupData, hasFields } from './DataTable.utils';
 
 
-const DataTable = <T,>({ data, fields }: DataTableProps<T>) => {
+const DataTable = <T,>({ data, fields, selectable = false, onSelectionChange }: DataTableProps<T>) => {
 	const [tableData, setTableData] = useState<BaseRow<T>[]>();
 	const [columns, setColumns] = useState<TableField<T>[]>();
-	const [tableGroupings, setTableGroupings] = useState<Grouping<T>[]>();
+	// For testing: Initialize with grouping by first groupable field if available
+	const firstGroupableField = fields.find(f => f.groupable)?.key;
+	const [tableGroupings, setTableGroupings] = useState<Grouping<T>[] | undefined>(
+		firstGroupableField ? [firstGroupableField as Grouping<T>] : undefined
+	);
 	const [searchTerm, setSearchTerm] = useState<string>('');
 	const [filterPanelState, setFilterPanelState] = useState<Filter[]>();
 	const [selectedFilters, setSelectedFilters] = useState<FilterResult[]>()
+	const [selectedIds, setSelectedIds] = useState<Set<string>>(new Set());
 	const tableHasGroupableFields = useMemo(() => hasFields('groupable', fields), [fields]);
 	const tableHasSearchableFields = useMemo(() => hasFields('searchable', fields), [fields]);
 	const tableHasFilterableFields = useMemo(() => hasFields('filterable', fields), [fields]);
@@ -35,7 +40,7 @@ const DataTable = <T,>({ data, fields }: DataTableProps<T>) => {
 		let tableRawData = [...data];
 		const filtersData: Filter[] = [];
 		if (searchTerm && columns) {
-			tableRawData = searchFilter(tableRawData, columns as TableField<any>[], searchTerm);
+			tableRawData = searchFilter(tableRawData, columns as TableField<unknown>[], searchTerm);
 		}
 		if (selectedFilters) {
 			for (let i = 0; i < selectedFilters.length; i++) {
@@ -65,6 +70,40 @@ const DataTable = <T,>({ data, fields }: DataTableProps<T>) => {
 		return columns?.find(col => col.key === property);
 	}
 
+	// Handle row selection change
+	const handleRowSelectionChange = useCallback((rowId: string, selected: boolean) => {
+		setSelectedIds(prev => {
+			const newSet = new Set(prev);
+			if (selected) {
+				newSet.add(rowId);
+			} else {
+				newSet.delete(rowId);
+			}
+			return newSet;
+		});
+	}, []);
+
+	// Handle group selection change (select/deselect all rows in group)
+	const handleGroupSelectionChange = useCallback((groupRow: BaseRow<T>, selected: boolean) => {
+		const allIds = getAllRowIdsFromGroup(groupRow);
+		setSelectedIds(prev => {
+			const newSet = new Set(prev);
+			if (selected) {
+				allIds.forEach(id => newSet.add(id));
+			} else {
+				allIds.forEach(id => newSet.delete(id));
+			}
+			return newSet;
+		});
+	}, []);
+
+	// Notify parent of selection changes
+	useEffect(() => {
+		if (onSelectionChange) {
+			onSelectionChange(Array.from(selectedIds));
+		}
+	}, [selectedIds, onSelectionChange]);
+
 	useEffect(() => {
 		setColumns(fields);
 		const baseRowData = convertToBaseRow(data);
@@ -73,19 +112,19 @@ const DataTable = <T,>({ data, fields }: DataTableProps<T>) => {
 	return (
 		<DataTableContext.Provider
 			value={{
-				tableData,
-				setTableData,
-				tableGroupings,
-				setTableGroupings,
-				columns,
-				setColumns,
+				tableData: tableData as BaseRow<unknown>[] | undefined,
+				setTableData: setTableData as React.Dispatch<React.SetStateAction<BaseRow<unknown>[] | undefined>> | undefined,
+				tableGroupings: tableGroupings as Grouping<unknown>[] | undefined,
+				setTableGroupings: setTableGroupings as React.Dispatch<React.SetStateAction<Grouping<unknown>[] | undefined>> | undefined,
+				columns: columns as TableField<unknown>[] | undefined,
+				setColumns: setColumns as React.Dispatch<React.SetStateAction<TableField<unknown>[] | undefined>> | undefined,
 				searchTerm,
 				setSearchTerm,
 				filterPanelState,
 				setFilterPanelState,
 				selectedFilters,
 				setSelectedFilters,
-				getHeader
+				getHeader: getHeader as (property: string) => TableField<unknown> | undefined
 			}}
 		>
 			{
@@ -113,6 +152,10 @@ const DataTable = <T,>({ data, fields }: DataTableProps<T>) => {
 					data={tableData}
 					fields={columns}
 					renderHeaders={true}
+					selectable={selectable}
+					selectedIds={selectedIds}
+					onRowSelectionChange={selectable ? handleRowSelectionChange : undefined}
+					onGroupSelectionChange={selectable ? handleGroupSelectionChange : undefined}
 				/>
 			}
 		</DataTableContext.Provider>

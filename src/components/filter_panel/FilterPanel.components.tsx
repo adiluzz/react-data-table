@@ -51,11 +51,14 @@ export const FilterGroupContainer = styled(Box)(({ theme }) => ({
 }));
 
 
-export const FilterGroupWrapper = styled(Box)(({ theme }) => ({
+export const FilterGroupWrapper = styled(Box, {
+    shouldForwardProp: (prop) => prop !== '$focused',
+})<{ $focused?: boolean }>(({ $focused, theme }) => ({
     borderBottom: `1px solid ${theme.palette.divider}`,
     padding: theme.spacing(1.5, 2),
     cursor: 'pointer',
     transition: 'background-color 0.2s ease-in-out',
+    backgroundColor: $focused ? theme.palette.action.selected : 'transparent',
     '&:hover': {
         backgroundColor: theme.palette.action.hover,
     },

@@ -5,13 +5,33 @@ export function hasFields<T>(input: keyof TableField<T>, fields: TableField<T>[]
     return !!fields?.find(field => field[input]);
 }
 
+// Helper function to convert any value to a string for grouping
+function getGroupKey(value: unknown): string {
+    if (value === null || value === undefined) {
+        return String(value);
+    }
+    if (typeof value === 'object') {
+        // For objects, try JSON.stringify, but handle circular references
+        try {
+            return JSON.stringify(value);
+        } catch (e) {
+            // Fallback for circular references or other issues
+            return String(value);
+        }
+    }
+    return String(value);
+}
+
 export function groupData<T>(data: BaseRow<T>[], field: Grouping<T>[], groupingCount: number = 0): BaseRow<T>[] {
     const dataByKey = data.reduce((prev, cur) => {
         const curField = cur[field[groupingCount] as keyof BaseRow<T>];
-        if (curField && prev[curField]) {
-            prev[curField].push(cur);
-        } else if (curField) {
-            prev[curField] = [cur];
+        if (curField !== null && curField !== undefined) {
+            const groupKey = getGroupKey(curField);
+            if (prev[groupKey]) {
+                prev[groupKey].push(cur);
+            } else {
+                prev[groupKey] = [cur];
+            }
         }
         return prev;
     }, {} as GroupingHash<T>);
@@ -78,4 +98,25 @@ export const getUniqueValues = (data: never[], key: string): FilterOption[] => {
             count: values[val]
         }
     }).sort((a, b) => b.count - a.count);
+}
+
+/**
+ * Recursively get all row IDs from a group (including nested groups)
+ */
+export function getAllRowIdsFromGroup<T>(groupRow: BaseRow<T>): string[] {
+    const ids: string[] = [];
+    
+    if (groupRow.groupedData) {
+        for (const row of groupRow.groupedData) {
+            if (row.groupedData) {
+                // This is a nested group, recurse
+                ids.push(...getAllRowIdsFromGroup(row));
+            } else if (row.id) {
+                // This is a regular row
+                ids.push(row.id);
+            }
+        }
+    }
+    
+    return ids;
 }

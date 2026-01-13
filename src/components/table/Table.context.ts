@@ -13,9 +13,9 @@ type TableState<T = Record<string, never>> = {
     setPageSize: React.Dispatch<React.SetStateAction<number>>;
 }
 
-const TableContext = createContext<TableState<any> | null>(null);
+const TableContext = createContext<TableState<unknown> | null>(null);
 
-export function useTableContext<T = any>(): TableState<T> | null {
+export function useTableContext<T = unknown>(): TableState<T> | null {
     return useContext(TableContext) as TableState<T> | null;
 }
 

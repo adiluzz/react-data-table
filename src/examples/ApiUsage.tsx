@@ -61,7 +61,16 @@ function App() {
 
     return (
         <div className="App">
-            {users && <DataTable data={users} fields={tableFields} />}
+            {users && (
+                <DataTable
+                    data={users}
+                    fields={tableFields}
+                    selectable={true}
+                    onSelectionChange={(ids) => {
+                        console.log('Selected IDs:', ids);
+                    }}
+                />
+            )}
         </div>
     );
 }

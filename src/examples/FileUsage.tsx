@@ -1,6 +1,8 @@
+import { useEffect } from 'react';
 import mockData from '../../tests/MOCK_DATA.json';
 import '../App.css';
 import DataTable from '../App.tsx';
+import { useDataTableContext } from '../components/data_table/DataTable.context';
 import { TableField } from '../components/data_table/DataTable.interface';
 
 type MockData = {
@@ -13,7 +15,8 @@ type MockData = {
 
 }
 
-function App() {
+// Inner component to access context
+function DataTableWithGrouping() {
 	const mockTableFields: TableField<MockData>[] = [
 		{ key: "id", headerText: "ID", sortable: true },
 		{ key: "first_name", headerText: "First Name", sortable: true, groupable: true, searchable: true, filterable: true },
@@ -23,10 +26,32 @@ function App() {
 		{ key: "ip_address", headerText: "IP Address", sortable: true, groupable: true },
 	];
 
+	const ctx = useDataTableContext<MockData>();
+	
+	// Set default grouping after mount
+	useEffect(() => {
+		if (ctx?.setTableGroupings && !ctx?.tableGroupings?.length) {
+			// Group by first_name to test styling
+			ctx.setTableGroupings(['first_name' as keyof MockData]);
+		}
+	}, [ctx?.setTableGroupings, ctx?.tableGroupings?.length]);
 
 	return (
+		<DataTable
+			data={mockData as unknown as MockData[]}
+			fields={mockTableFields}
+			selectable={true}
+			onSelectionChange={(ids) => {
+				console.log('Selected IDs:', ids);
+			}}
+		/>
+	);
+}
+
+function App() {
+	return (
 		<div className="App">
-			<DataTable data={mockData as unknown as MockData[]} fields={mockTableFields} />
+			<DataTableWithGrouping />
 		</div>
 	);
 }

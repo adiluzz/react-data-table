@@ -6,7 +6,14 @@ export const BottomPanelWrapper = styled(Box)(({ theme }) => ({
     justifyContent: 'space-between',
     gap: theme.spacing(2),
     marginBottom: theme.spacing(4),
-    flexWrap: 'nowrap',
-    alignItems: 'center',
     width: '100%',
+    // Mobile: stack vertically with search bar on top
+    flexDirection: 'column',
+    alignItems: 'stretch',
+    // Desktop: horizontal layout
+    [theme.breakpoints.up('sm')]: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        flexWrap: 'nowrap',
+    },
 }));

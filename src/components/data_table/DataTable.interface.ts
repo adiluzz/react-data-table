@@ -10,12 +10,15 @@ export interface TableField<T = object> {
     groupable?: boolean;
     searchable?: boolean;
     filterable?: boolean;
+    width?: number; // Optional column width in pixels. If not provided, column width will be based on content.
 }
 
 // Public API - users provide T[] directly
 export type DataTableProps<T> = {
     data: T[];
     fields: TableField<T>[];
+    selectable?: boolean;
+    onSelectionChange?: (selectedIds: string[]) => void;
 };
 
 // Internal types for grouping (not exported in public API)
@@ -48,6 +51,10 @@ export type TableProps<T> = {
     fields: TableField<T>[];
     renderHeaders?: boolean;
     depth?: number;
+    selectable?: boolean;
+    selectedIds?: Set<string>;
+    onRowSelectionChange?: (rowId: string, selected: boolean) => void;
+    onGroupSelectionChange?: (groupRow: BaseRow<T>, selected: boolean) => void;
 }
 
 export type GroupingHash<T> = {
