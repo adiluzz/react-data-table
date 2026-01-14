@@ -26,20 +26,30 @@ const GroupedTableRow = <T,>(
     const [open, setOpen] = useState<boolean>(false);
     const ctx = useDataTableContext();
 
-    // Calculate selection state for this group
-    const groupRowIds = useMemo(() => {
-        return getAllRowIdsFromGroup(row as BaseRow<T>);
-    }, [row]);
-
-    const allSelected = useMemo(() => {
-        if (!selectable || groupRowIds.length === 0) return false;
-        return groupRowIds.every(id => selectedIds?.has(id));
-    }, [selectable, groupRowIds, selectedIds]);
-
-    const someSelected = useMemo(() => {
-        if (!selectable || groupRowIds.length === 0) return false;
-        return groupRowIds.some(id => selectedIds?.has(id));
-    }, [selectable, groupRowIds, selectedIds]);
+    // Calculate selection state for this group - optimized with single pass
+    const { allSelected, someSelected } = useMemo(() => {
+        if (!selectable || !selectedIds) {
+            return { allSelected: false, someSelected: false };
+        }
+        
+        const groupRowIds = getAllRowIdsFromGroup(row as BaseRow<T>);
+        if (groupRowIds.length === 0) {
+            return { allSelected: false, someSelected: false };
+        }
+        
+        // Single pass through group IDs to check selection state
+        let selectedCount = 0;
+        for (let i = 0; i < groupRowIds.length; i++) {
+            if (selectedIds.has(groupRowIds[i])) {
+                selectedCount++;
+            }
+        }
+        
+        return {
+            allSelected: selectedCount === groupRowIds.length,
+            someSelected: selectedCount > 0
+        };
+    }, [selectable, selectedIds, row]);
 
     const handleGroupCheckboxChange = (checked: boolean) => {
         if (onGroupSelectionChange) {

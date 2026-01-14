@@ -2,6 +2,7 @@ import ArrowDropDownIcon from '@mui/icons-material/ArrowDropDown';
 import ArrowDropUpIcon from '@mui/icons-material/ArrowDropUp';
 import SortIcon from '@mui/icons-material/Sort';
 import { Checkbox, TableRow } from '@mui/material';
+import { useMemo } from 'react';
 import { BaseRow, SortDirection } from '../data_table/DataTable.interface';
 import { getAllRowIdsFromGroup } from '../data_table/DataTable.utils';
 import { TableHeaderIconWrapper, TableHeaderTextWrapper, TableHeaderWrapper } from './Table.components';
@@ -66,19 +67,42 @@ const TableHeaders = <T,>({ selectable, selectedIds, onRowSelectionChange, onGro
         }));
     };
 
-    const ctxData = ctx?.tableData || [];
-    const allRowIds = ctxData
-        .filter(row => !row.groupedData && row.id)
-        .map(row => row.id as string);
-    const allGroupRowIds = ctxData
-        .filter(row => row.groupedData)
-        .flatMap(row => {
-            if (!row.groupedData) return [];
-            return getAllRowIdsFromGroup(row);
-        });
-    const allSelectableIds = [...allRowIds, ...allGroupRowIds];
-    const allSelected = allSelectableIds.length > 0 && allSelectableIds.every(id => selectedIds?.has(id));
-    const someSelected = allSelectableIds.some(id => selectedIds?.has(id));
+    // Optimize selection checking with single pass and hash map
+    const { allSelected, someSelected } = useMemo(() => {
+        if (!selectable || !selectedIds || !ctx?.tableData) {
+            return { allSelected: false, someSelected: false };
+        }
+        
+        const ctxData = ctx.tableData;
+        let totalCount = 0;
+        let selectedCount = 0;
+        
+        // Single pass through data to count selectable and selected items
+        for (let i = 0; i < ctxData.length; i++) {
+            const row = ctxData[i];
+            if (row.groupedData) {
+                // For grouped rows, get all IDs from the group
+                const groupIds = getAllRowIdsFromGroup(row);
+                totalCount += groupIds.length;
+                for (let j = 0; j < groupIds.length; j++) {
+                    if (selectedIds.has(groupIds[j])) {
+                        selectedCount++;
+                    }
+                }
+            } else if (row.id) {
+                // For regular rows, check the ID directly
+                totalCount++;
+                if (selectedIds.has(row.id)) {
+                    selectedCount++;
+                }
+            }
+        }
+        
+        return {
+            allSelected: totalCount > 0 && selectedCount === totalCount,
+            someSelected: selectedCount > 0
+        };
+    }, [selectable, selectedIds, ctx?.tableData]);
 
     const handleSelectAll = (checked: boolean) => {
         if (!ctx?.tableData) return;

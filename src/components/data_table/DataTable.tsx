@@ -107,21 +107,27 @@ const DataTable = <T,>({ data, fields, selectable = false, onSelectionChange }: 
 	}, [selectedIds, onSelectionChange]);
 
 	// Clean up selected IDs when data changes - remove IDs that no longer exist in the data
+	// Optimized: Build hash map of valid IDs, then filter selectedIds in single pass
 	useEffect(() => {
 		if (!selectable) return;
 		
 		const baseRowData = convertToBaseRow(data);
+		// Build hash map of valid IDs for O(1) lookup
 		const validIds = new Set<string>();
 		
-		// Extract all valid IDs from the data
-		baseRowData.forEach((row) => {
+		// Single pass to build valid IDs hash map
+		for (let i = 0; i < baseRowData.length; i++) {
+			const row = baseRowData[i];
 			if (row.id) {
 				validIds.add(row.id);
 			}
-		});
+		}
 		
-		// Remove selected IDs that are no longer in the data
+		// Single pass to filter selected IDs using hash map lookup
 		setSelectedIds(prev => {
+			// If no selected IDs, return early
+			if (prev.size === 0) return prev;
+			
 			const newSet = new Set<string>();
 			prev.forEach(id => {
 				if (validIds.has(id)) {
