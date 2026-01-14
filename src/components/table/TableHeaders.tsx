@@ -17,8 +17,47 @@ type TableHeadersProps<T> = {
 
 const TableHeaders = <T,>({ selectable, selectedIds, onRowSelectionChange, onGroupSelectionChange }: TableHeadersProps<T>) => {
     const ctx = useTableContext<T>();
+    // Recursively sort nested groups when sort field matches nested group field
+    const sortNestedGroups = (data: BaseRow<T>[], sortField: keyof T | string, sortDirection: SortDirection): BaseRow<T>[] => {
+        return data.map(row => {
+            if (row.groupedData && row.groupedData.length > 0) {
+                // Check if nested groups exist (first item has groupedBy) and if sort field matches nested group field
+                const firstNestedItem = row.groupedData[0];
+                const nestedGroupField = firstNestedItem?.groupedBy?.groupField;
+                const hasNestedGroups = !!nestedGroupField;
+                const isSortingNestedGroup = hasNestedGroups && String(nestedGroupField) === String(sortField);
+                
+                // Recursively process nested groups first
+                let processedNested = sortNestedGroups(row.groupedData, sortField, sortDirection);
+                
+                if (isSortingNestedGroup) {
+                    // Sort the nested groups by their group value
+                    processedNested = [...processedNested].sort((a, b) => {
+                        if (a.groupedBy && b.groupedBy) {
+                            const aValue = a.groupedBy.value || '';
+                            const bValue = b.groupedBy.value || '';
+                            let ret: number;
+                            if (aValue < bValue) {
+                                ret = -1;
+                            } else if (aValue > bValue) {
+                                ret = 1;
+                            } else {
+                                ret = 0;
+                            }
+                            return sortDirection === 'asc' ? ret : -ret;
+                        }
+                        return 0;
+                    });
+                }
+                
+                return { ...row, groupedData: processedNested };
+            }
+            return row;
+        });
+    };
+
     const sortData = (field: keyof T, direction: SortDirection) => {
-        const sortedData = ctx?.tableData?.sort((a, b) => {
+        let sortedData = ctx?.tableData?.sort((a, b) => {
             // Check if both rows are grouped and if the sorted field matches the group field
             const aIsGrouped = a.groupedData && a.groupedBy;
             const bIsGrouped = b.groupedData && b.groupedBy;
@@ -57,6 +96,11 @@ const TableHeaders = <T,>({ selectable, selectedIds, onRowSelectionChange, onGro
             }
             return direction === 'asc' ? ret : -ret;
         });
+
+        // Recursively sort nested groups
+        if (sortedData) {
+            sortedData = sortNestedGroups(sortedData, field, direction);
+        }
 
         if (ctx?.setTableData && sortedData) {
             ctx?.setTableData(sortedData);
