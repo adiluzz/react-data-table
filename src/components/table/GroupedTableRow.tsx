@@ -51,6 +51,39 @@ const GroupedTableRow = <T,>(
         };
     }, [selectable, selectedIds, row]);
 
+    // Get the field that is being grouped by and render the value using renderComponent if available
+    const renderedGroupValue = useMemo(() => {
+        if (!row.groupedBy?.groupField || !row.groupedData || row.groupedData.length === 0) {
+            return value; // Fallback to string value
+        }
+        
+        // Find the field that matches the grouped field
+        const groupFieldKey = String(row.groupedBy.groupField);
+        const groupedField = fields.find(field => String(field.key) === groupFieldKey);
+        
+        if (!groupedField) {
+            return value; // Field not found, use string value
+        }
+        
+        // Get the actual field value from the first row in the group
+        const firstRow = row.groupedData[0] as T;
+        const fieldValue = firstRow[groupedField.key as keyof T];
+        
+        // If the field has a renderComponent, use it
+        if (groupedField.renderComponent && fieldValue !== undefined && fieldValue !== null) {
+            try {
+                return groupedField.renderComponent(firstRow);
+            } catch (error) {
+                // If renderComponent fails, fallback to string value
+                console.warn('Error rendering grouped value with renderComponent:', error);
+                return value;
+            }
+        }
+        
+        // No renderComponent, use the string value
+        return value;
+    }, [row, fields, value]);
+
     const handleGroupCheckboxChange = (checked: boolean) => {
         if (onGroupSelectionChange) {
             onGroupSelectionChange(row as BaseRow<T>, checked);
@@ -104,7 +137,7 @@ const GroupedTableRow = <T,>(
                             gap: 1,
                         }}
                     >
-                        <Box component="span">{value}</Box>
+                        <Box component="span">{renderedGroupValue}</Box>
                         <Box
                             component="strong"
                             sx={{
