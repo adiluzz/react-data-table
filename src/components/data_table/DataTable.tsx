@@ -1,5 +1,5 @@
 import { Box } from "@mui/material";
-import { useCallback, useEffect, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import FilterPanel from "../filter_panel/FilterPanel";
 import { Filter, FilterResult } from "../filter_panel/FilterPanel.interface";
 import { optionFilter, searchFilter } from "../filter_panel/Filters";
@@ -11,6 +11,23 @@ import DataTableContext from './DataTable.context';
 import { BaseRow, DataTableProps, Grouping, TableField } from './DataTable.interface';
 import { getAllRowIdsFromGroup, getUniqueValues, groupData, hasFields } from './DataTable.utils';
 
+// Create a stable reference for fields by comparing only non-function properties
+// This prevents infinite loops when renderComponent functions are new references
+const getFieldsKey = <T,>(fields: TableField<T>[]): string => {
+	return fields.map(field => {
+		return JSON.stringify({
+			key: String(field.key),
+			headerText: field.headerText,
+			sortable: field.sortable,
+			sorted: field.sorted,
+			groupable: field.groupable,
+			searchable: field.searchable,
+			filterable: field.filterable,
+			width: field.width,
+		});
+	}).join('|');
+};
+
 
 const DataTable = <T,>({ data, fields, selectable = false, onSelectionChange }: DataTableProps<T>) => {
 	const [tableData, setTableData] = useState<BaseRow<T>[]>();
@@ -20,9 +37,23 @@ const DataTable = <T,>({ data, fields, selectable = false, onSelectionChange }: 
 	const [filterPanelState, setFilterPanelState] = useState<Filter[]>();
 	const [selectedFilters, setSelectedFilters] = useState<FilterResult[]>()
 	const [selectedIds, setSelectedIds] = useState<Set<string>>(new Set());
-	const tableHasGroupableFields = useMemo(() => hasFields('groupable', fields), [fields]);
-	const tableHasSearchableFields = useMemo(() => hasFields('searchable', fields), [fields]);
-	const tableHasFilterableFields = useMemo(() => hasFields('filterable', fields), [fields]);
+	
+	// Use a ref to store the latest fields and a stable key to detect actual changes
+	const fieldsRef = useRef<TableField<T>[]>(fields);
+	const fieldsKeyRef = useRef<string>('');
+	const currentFieldsKey = getFieldsKey(fields);
+	
+	// Only update fieldsRef if the stable key changed (non-function properties changed)
+	if (currentFieldsKey !== fieldsKeyRef.current) {
+		fieldsRef.current = fields;
+		fieldsKeyRef.current = currentFieldsKey;
+	}
+	
+	// Use the stable fields reference for memoization
+	const stableFields = fieldsRef.current;
+	const tableHasGroupableFields = useMemo(() => hasFields('groupable', stableFields), [currentFieldsKey]);
+	const tableHasSearchableFields = useMemo(() => hasFields('searchable', stableFields), [currentFieldsKey]);
+	const tableHasFilterableFields = useMemo(() => hasFields('filterable', stableFields), [currentFieldsKey]);
 
 	// Convert T[] to BaseRow<T>[] internally for grouping support
 	const convertToBaseRow = useCallback((data: T[]): BaseRow<T>[] => {
@@ -44,8 +75,9 @@ const DataTable = <T,>({ data, fields, selectable = false, onSelectionChange }: 
 			}
 		}
 		if (tableHasFilterableFields) {
-			for (let i = 0; i < fields.length; i++) {
-				const field = fields[i];
+			// Use stableFields for iteration, but access current fields for renderComponent if needed
+			for (let i = 0; i < stableFields.length; i++) {
+				const field = stableFields[i];
 				if (field.filterable) {
 					filtersData.push({
 						property: field.key as string,
@@ -66,7 +98,7 @@ const DataTable = <T,>({ data, fields, selectable = false, onSelectionChange }: 
 		} else {
 			setTableData(tableRawData);
 		}
-	}, [searchTerm, columns, selectedFilters, tableHasFilterableFields, tableGroupings, fields]);
+	}, [searchTerm, columns, selectedFilters, tableHasFilterableFields, tableGroupings, currentFieldsKey]);
 
 	const getHeader = (property: string): TableField<T> | undefined => {
 		return columns?.find(col => col.key === property);
@@ -138,11 +170,17 @@ const DataTable = <T,>({ data, fields, selectable = false, onSelectionChange }: 
 		});
 	}, [data, selectable, convertToBaseRow]);
 
+	// Update columns when fields structure changes (detected by stable key)
+	// Always use the latest fields (with current renderComponent functions) for columns
 	useEffect(() => {
 		setColumns(fields);
+	}, [fields, currentFieldsKey]);
+	
+	// Separate effect for data processing - only depends on stable field key, not function references
+	useEffect(() => {
 		const baseRowData = convertToBaseRow(data);
 		groupTableData(baseRowData);
-	}, [data, fields, groupTableData, tableGroupings, convertToBaseRow]);
+	}, [data, currentFieldsKey, groupTableData, tableGroupings, convertToBaseRow]);
 	return (
 		<DataTableContext.Provider
 			value={{
