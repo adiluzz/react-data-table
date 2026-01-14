@@ -31,26 +31,49 @@ const getFieldsKey = <T,>(fields: TableField<T>[]): string => {
 
 const DataTable = <T,>({ data, fields, selectable = false, onSelectionChange }: DataTableProps<T>) => {
 	const [tableData, setTableData] = useState<BaseRow<T>[]>();
-	const [columns, setColumns] = useState<TableField<T>[]>();
 	const [tableGroupings, setTableGroupings] = useState<Grouping<T>[] | undefined>(undefined);
 	const [searchTerm, setSearchTerm] = useState<string>('');
 	const [filterPanelState, setFilterPanelState] = useState<Filter[]>();
 	const [selectedFilters, setSelectedFilters] = useState<FilterResult[]>()
 	const [selectedIds, setSelectedIds] = useState<Set<string>>(new Set());
 	
-	// Use a ref to store the latest fields and a stable key to detect actual changes
+	// Use refs to store the latest fields and a stable key to detect actual changes
 	const fieldsRef = useRef<TableField<T>[]>(fields);
 	const fieldsKeyRef = useRef<string>('');
 	const currentFieldsKey = getFieldsKey(fields);
 	
-	// Only update fieldsRef if the stable key changed (non-function properties changed)
+	// Always store the latest fields (for renderComponent functions)
+	fieldsRef.current = fields;
+	
+	// Track if the key changed (structure changed, not just function references)
 	if (currentFieldsKey !== fieldsKeyRef.current) {
-		fieldsRef.current = fields;
 		fieldsKeyRef.current = currentFieldsKey;
 	}
 	
-	// Use the stable fields reference for memoization
+	// Use the latest fields reference (always has current renderComponent functions)
 	const stableFields = fieldsRef.current;
+	
+	// Store columns in state, but only update when structure changes (not when function references change)
+	const [columnsState, setColumnsState] = useState<TableField<T>[]>(fields);
+	
+	// Update columns state only when structure changes
+	useEffect(() => {
+		setColumnsState(fieldsRef.current);
+	}, [currentFieldsKey]); // Only update when structure changes
+	
+	// Merge latest renderComponent functions into columns on every render
+	// This ensures renderComponent is always current without triggering structure-dependent re-renders
+	// We do this on every render (not in useMemo) to always get the latest renderComponent
+	const columns: TableField<T>[] = columnsState.map((col, index) => {
+		const latestField = fieldsRef.current[index];
+		if (latestField && String(latestField.key) === String(col.key)) {
+			return {
+				...col,
+				renderComponent: latestField.renderComponent, // Always use latest renderComponent
+			};
+		}
+		return col;
+	});
 	// stableFields only changes when currentFieldsKey changes, so including both is safe
 	const tableHasGroupableFields = useMemo(() => hasFields('groupable', stableFields), [currentFieldsKey, stableFields]);
 	const tableHasSearchableFields = useMemo(() => hasFields('searchable', stableFields), [currentFieldsKey, stableFields]);
@@ -171,11 +194,6 @@ const DataTable = <T,>({ data, fields, selectable = false, onSelectionChange }: 
 		});
 	}, [data, selectable, convertToBaseRow]);
 
-	// Update columns when fields structure changes (detected by stable key)
-	// Always use the latest fields (with current renderComponent functions) for columns
-	useEffect(() => {
-		setColumns(fields);
-	}, [fields, currentFieldsKey]);
 	
 	// Separate effect for data processing - only depends on stable field key, not function references
 	useEffect(() => {
@@ -190,7 +208,7 @@ const DataTable = <T,>({ data, fields, selectable = false, onSelectionChange }: 
 				tableGroupings: tableGroupings as Grouping<unknown>[] | undefined,
 				setTableGroupings: setTableGroupings as React.Dispatch<React.SetStateAction<Grouping<unknown>[] | undefined>> | undefined,
 				columns: columns as TableField<unknown>[] | undefined,
-				setColumns: setColumns as React.Dispatch<React.SetStateAction<TableField<unknown>[] | undefined>> | undefined,
+				setColumns: undefined, // Columns are now derived, not state
 				searchTerm,
 				setSearchTerm,
 				filterPanelState,
