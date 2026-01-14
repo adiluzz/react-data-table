@@ -50,9 +50,6 @@ const DataTable = <T,>({ data, fields, selectable = false, onSelectionChange }: 
 		fieldsKeyRef.current = currentFieldsKey;
 	}
 	
-	// Use the latest fields reference (always has current renderComponent functions)
-	const stableFields = fieldsRef.current;
-	
 	// Store columns in state, but only update when structure changes (not when function references change)
 	const [columnsState, setColumnsState] = useState<TableField<T>[]>(fields);
 	
@@ -61,23 +58,29 @@ const DataTable = <T,>({ data, fields, selectable = false, onSelectionChange }: 
 		setColumnsState(fieldsRef.current);
 	}, [currentFieldsKey]); // Only update when structure changes
 	
-	// Merge latest renderComponent functions into columns on every render
-	// This ensures renderComponent is always current without triggering structure-dependent re-renders
-	// We do this on every render (not in useMemo) to always get the latest renderComponent
-	const columns: TableField<T>[] = columnsState.map((col, index) => {
-		const latestField = fieldsRef.current[index];
-		if (latestField && String(latestField.key) === String(col.key)) {
-			return {
-				...col,
-				renderComponent: latestField.renderComponent, // Always use latest renderComponent
-			};
-		}
-		return col;
-	});
-	// stableFields only changes when currentFieldsKey changes, so including both is safe
-	const tableHasGroupableFields = useMemo(() => hasFields('groupable', stableFields), [currentFieldsKey, stableFields]);
-	const tableHasSearchableFields = useMemo(() => hasFields('searchable', stableFields), [currentFieldsKey, stableFields]);
-	const tableHasFilterableFields = useMemo(() => hasFields('filterable', stableFields), [currentFieldsKey, stableFields]);
+	// Merge latest renderComponent functions into columns
+	// Use useMemo to prevent creating new array on every render, but always use latest renderComponent
+	// The key insight: columnsState only changes when structure changes, but we always merge latest renderComponent
+	// We access fieldsRef.current inside the memo (not in deps) so it always gets the latest renderComponent
+	const columns = useMemo(() => {
+		// Access fieldsRef.current inside the memo to get latest renderComponent functions
+		const latestFields = fieldsRef.current;
+		return columnsState.map((col, index) => {
+			const latestField = latestFields[index];
+			if (latestField && String(latestField.key) === String(col.key)) {
+				return {
+					...col,
+					renderComponent: latestField.renderComponent, // Always use latest renderComponent
+				};
+			}
+			return col;
+		});
+	}, [columnsState]); // Only recalculate when structure changes - fieldsRef.current is accessed inside, always latest
+	
+	// Use fieldsRef.current directly to avoid dependency issues - it's always the latest
+	const tableHasGroupableFields = useMemo(() => hasFields('groupable', fieldsRef.current), [currentFieldsKey]);
+	const tableHasSearchableFields = useMemo(() => hasFields('searchable', fieldsRef.current), [currentFieldsKey]);
+	const tableHasFilterableFields = useMemo(() => hasFields('filterable', fieldsRef.current), [currentFieldsKey]);
 
 	// Convert T[] to BaseRow<T>[] internally for grouping support
 	const convertToBaseRow = useCallback((data: T[]): BaseRow<T>[] => {
@@ -101,9 +104,9 @@ const DataTable = <T,>({ data, fields, selectable = false, onSelectionChange }: 
 			}
 		}
 		if (tableHasFilterableFields) {
-			// Use stableFields for iteration, but access current fields for renderComponent if needed
-			for (let i = 0; i < stableFields.length; i++) {
-				const field = stableFields[i];
+			// Use fieldsRef.current directly (always has latest) for iteration
+			for (let i = 0; i < fieldsRef.current.length; i++) {
+				const field = fieldsRef.current[i];
 				if (field.filterable) {
 					filtersData.push({
 						property: field.key as string,
@@ -124,7 +127,7 @@ const DataTable = <T,>({ data, fields, selectable = false, onSelectionChange }: 
 		} else {
 			setTableData(tableRawData);
 		}
-	}, [searchTerm, selectedFilters, tableHasFilterableFields, tableGroupings, currentFieldsKey, stableFields]);
+	}, [searchTerm, selectedFilters, tableHasFilterableFields, tableGroupings, currentFieldsKey]);
 
 	const getHeader = (property: string): TableField<T> | undefined => {
 		return columns?.find(col => col.key === property);

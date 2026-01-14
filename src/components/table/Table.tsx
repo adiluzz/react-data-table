@@ -1,5 +1,5 @@
 import { Box, Checkbox, Paper } from "@mui/material";
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { defaultPageSizeOptions } from "../data_table/DataTable.const";
 import { BaseRow, TableField, TableProps } from "../data_table/DataTable.interface";
 import Pagination from "../pagination/Pagination";
@@ -8,14 +8,57 @@ import { TableDetail, TableOverflowContainer, TableRowWrapper } from "./Table.co
 import { getTableContext } from "./Table.context";
 import TableConditional from "./TableConditional";
 
+// Create a stable key from field properties (excluding renderComponent)
+const getFieldsKey = <T,>(fields: TableField<T>[]): string => {
+	return fields.map(field => {
+		return JSON.stringify({
+			key: String(field.key),
+			headerText: field.headerText,
+			sortable: field.sortable,
+			sorted: field.sorted,
+			groupable: field.groupable,
+			searchable: field.searchable,
+			filterable: field.filterable,
+			width: field.width,
+		});
+	}).join('|');
+};
+
 
 const Table = <T,>({ data, fields, renderHeaders, depth = 0, selectable = false, selectedIds, onRowSelectionChange, onGroupSelectionChange }: TableProps<T>) => {
     const TableContext = getTableContext<T>();
     const [tableData, setTableData] = useState<BaseRow<T>[]>(data);
     const [curData, setCurData] = useState<BaseRow<T>[]>();
-    const [columns, setColumns] = useState<TableField<T>[]>(fields);
+    const [columnsState, setColumnsState] = useState<TableField<T>[]>(fields);
     const isNestedTable = depth > 0;
 
+    // Use refs to track latest fields and stable key
+    const fieldsRef = useRef<TableField<T>[]>(fields);
+    const fieldsKeyRef = useRef<string>('');
+    fieldsRef.current = fields; // Always store latest
+    const currentFieldsKey = getFieldsKey(fields);
+    
+    // Update columnsState only when structure changes
+    useEffect(() => {
+        if (currentFieldsKey !== fieldsKeyRef.current) {
+            fieldsKeyRef.current = currentFieldsKey;
+            setColumnsState(fieldsRef.current);
+        }
+    }, [currentFieldsKey]);
+    
+    // Merge latest renderComponent functions into columns
+    const columns = useMemo(() => {
+        return columnsState.map((col, index) => {
+            const latestField = fieldsRef.current[index];
+            if (latestField && String(latestField.key) === String(col.key)) {
+                return {
+                    ...col,
+                    renderComponent: latestField.renderComponent, // Always use latest renderComponent
+                };
+            }
+            return col;
+        });
+    }, [columnsState]); // Only recalculate when structure changes
 
     const [page, setPage] = useState<number>(0);
     const [pageSize, setPageSize] = useState<number>(defaultPageSizeOptions[0]);
@@ -37,7 +80,7 @@ const Table = <T,>({ data, fields, renderHeaders, depth = 0, selectable = false,
             tableData,
             setTableData: setTableDataAction,
             columns,
-            setColumns,
+            setColumns: setColumnsState, // Use setColumnsState to update columns
             page,
             setPage,
             pageSize,
