@@ -90,8 +90,10 @@ const DataTable = <T,>({ data, fields, selectable = false, onSelectionChange }: 
 	const groupTableData = useCallback((data: BaseRow<T>[]) => {
 		let tableRawData = [...data];
 		const filtersData: Filter[] = [];
-		if (searchTerm && columns) {
-			tableRawData = searchFilter(tableRawData, columns as TableField<unknown>[], searchTerm);
+		// Use fieldsRef.current (always has latest) instead of columns to avoid dependency issues
+		const currentColumns = fieldsRef.current;
+		if (searchTerm && currentColumns) {
+			tableRawData = searchFilter(tableRawData, currentColumns as TableField<unknown>[], searchTerm);
 		}
 		if (selectedFilters) {
 			for (let i = 0; i < selectedFilters.length; i++) {
@@ -112,8 +114,8 @@ const DataTable = <T,>({ data, fields, selectable = false, onSelectionChange }: 
 		}
 		setFilterPanelState(filtersData);
 		
-		// Extract sort state from columns
-		const sortedColumn = columns?.find(col => col.sorted);
+		// Extract sort state from current columns (always has latest)
+		const sortedColumn = currentColumns?.find(col => col.sorted);
 		const sortField = sortedColumn?.key ? String(sortedColumn.key) : undefined;
 		const sortDirection = sortedColumn?.sorted;
 		
@@ -122,7 +124,7 @@ const DataTable = <T,>({ data, fields, selectable = false, onSelectionChange }: 
 		} else {
 			setTableData(tableRawData);
 		}
-	}, [searchTerm, columns, selectedFilters, tableHasFilterableFields, tableGroupings, currentFieldsKey, stableFields]);
+	}, [searchTerm, selectedFilters, tableHasFilterableFields, tableGroupings, currentFieldsKey, stableFields]);
 
 	const getHeader = (property: string): TableField<T> | undefined => {
 		return columns?.find(col => col.key === property);
