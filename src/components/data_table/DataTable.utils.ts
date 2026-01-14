@@ -22,7 +22,13 @@ function getGroupKey(value: unknown): string {
     return String(value);
 }
 
-export function groupData<T>(data: BaseRow<T>[], field: Grouping<T>[], groupingCount: number = 0): BaseRow<T>[] {
+export function groupData<T>(
+    data: BaseRow<T>[], 
+    field: Grouping<T>[], 
+    groupingCount: number = 0,
+    sortField?: keyof T | string,
+    sortDirection?: 'asc' | 'desc'
+): BaseRow<T>[] {
     const dataByKey = data.reduce((prev, cur) => {
         const curField = cur[field[groupingCount] as keyof BaseRow<T>];
         if (curField !== null && curField !== undefined) {
@@ -40,7 +46,9 @@ export function groupData<T>(data: BaseRow<T>[], field: Grouping<T>[], groupingC
     for (const key in dataByKey) {
         if (Object.prototype.hasOwnProperty.call(dataByKey, key)) {
             const element = dataByKey[key];
-            const groupedData: BaseRow<T>[] = groupingCount + 1 < field.length ? groupData(element, field, groupingCount + 1) : element;
+            const groupedData: BaseRow<T>[] = groupingCount + 1 < field.length 
+                ? groupData(element, field, groupingCount + 1, sortField, sortDirection) 
+                : element;
 
             newTableData.push({
                 groupedBy: {
@@ -52,9 +60,31 @@ export function groupData<T>(data: BaseRow<T>[], field: Grouping<T>[], groupingC
             } as unknown as BaseRow<T>);
         }
     }
+    
+    // Sort groups: if sorting by the current grouped field, sort by group value
+    // Otherwise, sort by group size (default behavior)
+    const currentGroupField = field[groupingCount];
+    const isSortingByGroupField = sortField && String(sortField) === String(currentGroupField);
+    
     newTableData.sort((a, b) => {
         if (a.groupedData && b.groupedData) {
-            return b.groupedData.length - a.groupedData.length;
+            if (isSortingByGroupField && sortDirection) {
+                // Sort by group value
+                const aValue = a.groupedBy?.value || '';
+                const bValue = b.groupedBy?.value || '';
+                let ret: number;
+                if (aValue < bValue) {
+                    ret = -1;
+                } else if (aValue > bValue) {
+                    ret = 1;
+                } else {
+                    ret = 0;
+                }
+                return sortDirection === 'asc' ? ret : -ret;
+            } else {
+                // Default: sort by group size
+                return b.groupedData.length - a.groupedData.length;
+            }
         }
         return 0;
     });

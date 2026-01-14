@@ -18,6 +18,33 @@ const TableHeaders = <T,>({ selectable, selectedIds, onRowSelectionChange, onGro
     const ctx = useTableContext<T>();
     const sortData = (field: keyof T, direction: SortDirection) => {
         const sortedData = ctx?.tableData?.sort((a, b) => {
+            // Check if both rows are grouped and if the sorted field matches the group field
+            const aIsGrouped = a.groupedData && a.groupedBy;
+            const bIsGrouped = b.groupedData && b.groupedBy;
+            
+            if (aIsGrouped && bIsGrouped) {
+                // Both are groups - check if sorting by the grouped field
+                const aGroupField = a.groupedBy?.groupField;
+                const bGroupField = b.groupedBy?.groupField;
+                const isSortingByGroupField = String(aGroupField) === String(field) && String(bGroupField) === String(field);
+                
+                if (isSortingByGroupField) {
+                    // Sort by group value
+                    const aValue = a.groupedBy?.value || '';
+                    const bValue = b.groupedBy?.value || '';
+                    let ret: number;
+                    if (aValue < bValue) {
+                        ret = -1;
+                    } else if (aValue > bValue) {
+                        ret = 1;
+                    } else {
+                        ret = 0;
+                    }
+                    return direction === 'asc' ? ret : -ret;
+                }
+            }
+            
+            // Default sorting behavior for non-grouped rows or when sorting by non-grouped field
             let ret;
             const aField = a[field];
             const bField = b[field];

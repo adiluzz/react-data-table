@@ -55,8 +55,14 @@ const DataTable = <T,>({ data, fields, selectable = false, onSelectionChange }: 
 			}
 		}
 		setFilterPanelState(filtersData);
+		
+		// Extract sort state from columns
+		const sortedColumn = columns?.find(col => col.sorted);
+		const sortField = sortedColumn?.key ? String(sortedColumn.key) : undefined;
+		const sortDirection = sortedColumn?.sorted;
+		
 		if (tableGroupings && tableGroupings.length > 0) {
-			setTableData(groupData(tableRawData, tableGroupings));
+			setTableData(groupData(tableRawData, tableGroupings, 0, sortField, sortDirection));
 		} else {
 			setTableData(tableRawData);
 		}
