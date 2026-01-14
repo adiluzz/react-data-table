@@ -46,6 +46,7 @@ export function groupData<T>(
     for (const key in dataByKey) {
         if (Object.prototype.hasOwnProperty.call(dataByKey, key)) {
             const element = dataByKey[key];
+            // Recursively group nested levels - this will also sort nested groups
             const groupedData: BaseRow<T>[] = groupingCount + 1 < field.length 
                 ? groupData(element, field, groupingCount + 1, sortField, sortDirection) 
                 : element;
@@ -61,15 +62,16 @@ export function groupData<T>(
         }
     }
     
-    // Sort groups: if sorting by the current grouped field, sort by group value
+    // Sort groups at this level: if sorting by the current grouped field, sort by group value
     // Otherwise, sort by group size (default behavior)
+    // Note: Nested groups are already sorted by the recursive call above
     const currentGroupField = field[groupingCount];
     const isSortingByGroupField = sortField && String(sortField) === String(currentGroupField);
     
     newTableData.sort((a, b) => {
         if (a.groupedData && b.groupedData) {
             if (isSortingByGroupField && sortDirection) {
-                // Sort by group value
+                // Sort by group value when sorting by this grouping field
                 const aValue = a.groupedBy?.value || '';
                 const bValue = b.groupedBy?.value || '';
                 let ret: number;
