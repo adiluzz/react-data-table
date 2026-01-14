@@ -51,9 +51,10 @@ const DataTable = <T,>({ data, fields, selectable = false, onSelectionChange }: 
 	
 	// Use the stable fields reference for memoization
 	const stableFields = fieldsRef.current;
-	const tableHasGroupableFields = useMemo(() => hasFields('groupable', stableFields), [currentFieldsKey]);
-	const tableHasSearchableFields = useMemo(() => hasFields('searchable', stableFields), [currentFieldsKey]);
-	const tableHasFilterableFields = useMemo(() => hasFields('filterable', stableFields), [currentFieldsKey]);
+	// stableFields only changes when currentFieldsKey changes, so including both is safe
+	const tableHasGroupableFields = useMemo(() => hasFields('groupable', stableFields), [currentFieldsKey, stableFields]);
+	const tableHasSearchableFields = useMemo(() => hasFields('searchable', stableFields), [currentFieldsKey, stableFields]);
+	const tableHasFilterableFields = useMemo(() => hasFields('filterable', stableFields), [currentFieldsKey, stableFields]);
 
 	// Convert T[] to BaseRow<T>[] internally for grouping support
 	const convertToBaseRow = useCallback((data: T[]): BaseRow<T>[] => {
@@ -98,7 +99,7 @@ const DataTable = <T,>({ data, fields, selectable = false, onSelectionChange }: 
 		} else {
 			setTableData(tableRawData);
 		}
-	}, [searchTerm, columns, selectedFilters, tableHasFilterableFields, tableGroupings, currentFieldsKey]);
+	}, [searchTerm, columns, selectedFilters, tableHasFilterableFields, tableGroupings, currentFieldsKey, stableFields]);
 
 	const getHeader = (property: string): TableField<T> | undefined => {
 		return columns?.find(col => col.key === property);
