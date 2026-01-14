@@ -100,6 +100,32 @@ const DataTable = <T,>({ data, fields, selectable = false, onSelectionChange }: 
 		}
 	}, [selectedIds, onSelectionChange]);
 
+	// Clean up selected IDs when data changes - remove IDs that no longer exist in the data
+	useEffect(() => {
+		if (!selectable) return;
+		
+		const baseRowData = convertToBaseRow(data);
+		const validIds = new Set<string>();
+		
+		// Extract all valid IDs from the data
+		baseRowData.forEach((row) => {
+			if (row.id) {
+				validIds.add(row.id);
+			}
+		});
+		
+		// Remove selected IDs that are no longer in the data
+		setSelectedIds(prev => {
+			const newSet = new Set<string>();
+			prev.forEach(id => {
+				if (validIds.has(id)) {
+					newSet.add(id);
+				}
+			});
+			return newSet;
+		});
+	}, [data, selectable, convertToBaseRow]);
+
 	useEffect(() => {
 		setColumns(fields);
 		const baseRowData = convertToBaseRow(data);
