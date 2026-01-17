@@ -2,21 +2,35 @@ import styled from "styled-components";
 import { RowBorder, defaultBorder, grayScale500 } from "../common/classes";
 import { Clickable } from "../common/classes.const";
 
-export const PageNumber = styled.div<{ $isCurrentPage?: boolean }>(({ $isCurrentPage }) => {
-    return {
-        ...Clickable,
-        height: 45,
-        width: 45,
-        display: 'flex',
-        justifyContent: 'center',
-        alignItems: 'center',
-        border: $isCurrentPage ? `1px solid ${grayScale500}` : defaultBorder,
+export const PageNumber = styled.div<{ $isCurrentPage?: boolean }>`
+    ${Clickable}
+    height: 45px;
+    width: 45px;
+    min-width: 45px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    border: ${({ $isCurrentPage }) => $isCurrentPage ? `1px solid ${grayScale500}` : defaultBorder};
+    
+    @media (max-width: 768px) {
+        height: 36px;
+        width: 36px;
+        min-width: 36px;
+        font-size: 0.875rem;
     }
-});
+`;
 
-export const PagesWrapper = styled.div({
-    display: 'flex',
-});
+export const PagesWrapper = styled.div`
+    display: flex;
+    flex-wrap: wrap;
+    gap: 4px;
+    justify-content: center;
+    
+    @media (max-width: 768px) {
+        gap: 2px;
+        justify-content: center;
+    }
+`;
 
 export const PaginationWrapper = styled.div`
     ${RowBorder}
@@ -26,6 +40,22 @@ export const PaginationWrapper = styled.div`
     gap: 2rem;
     padding-top: 10px;
     padding-bottom: 10px;
+    flex-wrap: wrap;
+    
+    @media (max-width: 768px) {
+        flex-direction: column;
+        align-items: stretch;
+        gap: 1rem;
+        padding: 10px;
+        
+        > div {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 0.5rem;
+        }
+    }
 `;
 
 

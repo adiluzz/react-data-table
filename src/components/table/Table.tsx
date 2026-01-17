@@ -224,7 +224,7 @@ const Table = <T,>({ data, fields, renderHeaders, depth = 0, selectable = false,
                 </TableConditional>
             </TableOverflowContainer>
         </Box>
-        {!isNestedTable && <Pagination<T> />}
+        <Pagination<T> />
     </TableContext.Provider >
 };
 
