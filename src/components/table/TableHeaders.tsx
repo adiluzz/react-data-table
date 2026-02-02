@@ -13,9 +13,10 @@ type TableHeadersProps<T> = {
     selectedIds?: Set<string>;
     onRowSelectionChange?: (rowId: string, selected: boolean) => void;
     onGroupSelectionChange?: (groupRow: BaseRow<T>, selected: boolean) => void;
+    onSortChange?: (field: string, direction: SortDirection | undefined) => void;
 };
 
-const TableHeaders = <T,>({ selectable, selectedIds, onRowSelectionChange, onGroupSelectionChange }: TableHeadersProps<T>) => {
+const TableHeaders = <T,>({ selectable, selectedIds, onRowSelectionChange, onGroupSelectionChange, onSortChange }: TableHeadersProps<T>) => {
     const ctx = useTableContext<T>();
     // Recursively sort nested groups when sort field matches nested group field
     const sortNestedGroups = (data: BaseRow<T>[], sortField: keyof T | string, sortDirection: SortDirection): BaseRow<T>[] => {
@@ -109,6 +110,8 @@ const TableHeaders = <T,>({ selectable, selectedIds, onRowSelectionChange, onGro
             col.sorted = col.key === field ? direction : undefined;
             return col;
         }));
+        // Notify parent of sort change
+        onSortChange && onSortChange(String(field), direction);
     };
 
     // Optimize selection checking with single pass and hash map

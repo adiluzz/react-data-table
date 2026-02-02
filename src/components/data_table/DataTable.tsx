@@ -9,7 +9,7 @@ import Table from '../table/Table';
 import { BottomPanelWrapper } from "./DataTable.components";
 import DataTableContext from './DataTable.context';
 import { BaseRow, DataTableProps, Grouping, TableField } from './DataTable.interface';
-import { getAllRowIdsFromGroup, getUniqueValues, groupData, hasFields } from './DataTable.utils';
+import { getAllRowIdsFromGroup, getUniqueValues, groupData, hasFields, loadTableStateFromLocalStorage, saveTableStateToLocalStorage } from './DataTable.utils';
 
 // Create a stable reference for fields by comparing only non-function properties
 // This prevents infinite loops when renderComponent functions are new references
@@ -29,13 +29,28 @@ const getFieldsKey = <T,>(fields: TableField<T>[]): string => {
 };
 
 
-const DataTable = <T,>({ data, fields, selectable = false, onSelectionChange }: DataTableProps<T>) => {
+const DataTable = <T,>({ data, fields, selectable = false, onSelectionChange, localStorageKey }: DataTableProps<T>) => {
+	// Load initial state from localStorage if key is provided
+	const savedState = useMemo(() => {
+		if (localStorageKey) {
+			return loadTableStateFromLocalStorage(localStorageKey);
+		}
+		return null;
+	}, [localStorageKey]);
+
+	// Initialize state from localStorage or defaults
 	const [tableData, setTableData] = useState<BaseRow<T>[]>();
-	const [tableGroupings, setTableGroupings] = useState<Grouping<T>[] | undefined>(undefined);
-	const [searchTerm, setSearchTerm] = useState<string>('');
+	const [tableGroupings, setTableGroupings] = useState<Grouping<T>[] | undefined>(
+		savedState?.tableGroupings as Grouping<T>[] | undefined
+	);
+	const [searchTerm, setSearchTerm] = useState<string>(savedState?.searchTerm || '');
 	const [filterPanelState, setFilterPanelState] = useState<Filter[]>();
-	const [selectedFilters, setSelectedFilters] = useState<FilterResult[]>()
-	const [selectedIds, setSelectedIds] = useState<Set<string>>(new Set());
+	const [selectedFilters, setSelectedFilters] = useState<FilterResult[] | undefined>(
+		savedState?.selectedFilters
+	);
+	const [selectedIds, setSelectedIds] = useState<Set<string>>(
+		new Set(savedState?.selectedIds || [])
+	);
 	
 	// Use refs to store the latest fields and a stable key to detect actual changes
 	const fieldsRef = useRef<TableField<T>[]>(fields);
@@ -51,11 +66,56 @@ const DataTable = <T,>({ data, fields, selectable = false, onSelectionChange }: 
 	}
 	
 	// Store columns in state, but only update when structure changes (not when function references change)
-	const [columnsState, setColumnsState] = useState<TableField<T>[]>(fields);
+	// Apply saved sort state on initial load
+	const hasAppliedInitialSort = useRef(false);
+	const initialColumns = useMemo(() => {
+		if (savedState?.sortState && !hasAppliedInitialSort.current) {
+			hasAppliedInitialSort.current = true;
+			return fields.map(field => {
+				if (String(field.key) === savedState.sortState!.field) {
+					return { ...field, sorted: savedState.sortState!.direction };
+				}
+				return { ...field, sorted: undefined };
+			});
+		}
+		return fields;
+	}, [savedState, fields]);
+
+	const [columnsState, setColumnsState] = useState<TableField<T>[]>(initialColumns);
+
+	// Track current sort state - use ref for preserving across structure changes, state for triggering saves
+	const sortStateRef = useRef<{ field: string; direction: 'asc' | 'desc' } | null>(
+		savedState?.sortState || null
+	);
+	const [sortState, setSortState] = useState<{ field: string; direction: 'asc' | 'desc' } | null>(
+		savedState?.sortState || null
+	);
 	
-	// Update columns state only when structure changes
+	// Handle sort changes from Table component
+	const handleSortChange = useCallback((field: string, direction: 'asc' | 'desc' | undefined) => {
+		const newSortState = direction ? { field, direction } : null;
+		sortStateRef.current = newSortState;
+		setSortState(newSortState);
+		
+		// Update columnsState to reflect the sort change
+		setColumnsState(prev => prev.map(col => {
+			if (String(col.key) === field) {
+				return { ...col, sorted: direction };
+			}
+			return { ...col, sorted: undefined };
+		}));
+	}, []);
+
+	// Update columns state only when structure changes, but preserve sort state if the sorted field still exists
 	useEffect(() => {
-		setColumnsState(fieldsRef.current);
+		const newColumns = fieldsRef.current.map(field => {
+			// If we had a sort state and this field matches, preserve it
+			if (sortStateRef.current && String(field.key) === sortStateRef.current.field) {
+				return { ...field, sorted: sortStateRef.current.direction };
+			}
+			return { ...field, sorted: undefined };
+		});
+		setColumnsState(newColumns);
 	}, [currentFieldsKey]); // Only update when structure changes
 	
 	// Merge latest renderComponent functions into columns
@@ -205,6 +265,56 @@ const DataTable = <T,>({ data, fields, selectable = false, onSelectionChange }: 
 		const baseRowData = convertToBaseRow(data);
 		groupTableData(baseRowData);
 	}, [data, currentFieldsKey, groupTableData, tableGroupings, convertToBaseRow]);
+
+	// Debounced save to localStorage - only save once after all changes settle
+	const saveTimeoutRef = useRef<NodeJS.Timeout | null>(null);
+	const prevStateRef = useRef<string>('');
+	
+	useEffect(() => {
+		if (!localStorageKey) return;
+
+		// Serialize current state for comparison
+		const currentStateStr = JSON.stringify({
+			tableGroupings: tableGroupings ? tableGroupings.map(g => String(g)).sort().join(',') : '',
+			searchTerm: searchTerm || '',
+			selectedFilters: selectedFilters ? JSON.stringify(selectedFilters.sort((a, b) => a.property.localeCompare(b.property) || a.value.localeCompare(b.value))) : '',
+			selectedIds: selectedIds.size > 0 ? Array.from(selectedIds).sort().join(',') : '',
+			sortState: sortState ? `${sortState.field}:${sortState.direction}` : '',
+		});
+
+		// Only save if state actually changed
+		if (currentStateStr === prevStateRef.current) {
+			return;
+		}
+
+		prevStateRef.current = currentStateStr;
+
+		// Clear any pending save
+		if (saveTimeoutRef.current) {
+			clearTimeout(saveTimeoutRef.current);
+		}
+
+		// Debounce the save by 300ms to batch multiple rapid changes
+		saveTimeoutRef.current = setTimeout(() => {
+			const stateToSave = {
+				tableGroupings: tableGroupings ? tableGroupings.map(g => String(g)) : undefined,
+				searchTerm: searchTerm || undefined,
+				selectedFilters: selectedFilters || undefined,
+				selectedIds: selectedIds.size > 0 ? Array.from(selectedIds) : undefined,
+				sortState: sortState || undefined,
+			};
+
+			saveTableStateToLocalStorage(localStorageKey, stateToSave);
+		}, 300);
+
+		// Cleanup timeout on unmount
+		return () => {
+			if (saveTimeoutRef.current) {
+				clearTimeout(saveTimeoutRef.current);
+			}
+		};
+	}, [localStorageKey, tableGroupings, searchTerm, selectedFilters, selectedIds, sortState]);
+
 	return (
 		<DataTableContext.Provider
 			value={{
@@ -252,6 +362,7 @@ const DataTable = <T,>({ data, fields, selectable = false, onSelectionChange }: 
 					selectedIds={selectedIds}
 					onRowSelectionChange={selectable ? handleRowSelectionChange : undefined}
 					onGroupSelectionChange={selectable ? handleGroupSelectionChange : undefined}
+					onSortChange={handleSortChange}
 				/>
 			}
 		</DataTableContext.Provider>

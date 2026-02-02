@@ -9,13 +9,13 @@ This table is fast, has grouping abilities and can work with up to 10 million ro
 
 ## Installation
 
-Install the package and its required peer dependencies:
+Install the package with a single command. All required dependencies will be installed automatically:
 
 ```console
-npm i react-turbo-table @mui/material @mui/icons-material @emotion/react @emotion/styled
+npm install react-turbo-table
 ```
 
-**Required Peer Dependencies:**
+**Note:** The following dependencies are automatically installed:
 - `react` (>=16.8.0)
 - `react-dom` (>=16.8.0)
 - `@mui/material` (^5.0.0)
@@ -25,13 +25,7 @@ npm i react-turbo-table @mui/material @mui/icons-material @emotion/react @emotio
 
 ## Setup
 
-### Step 1: Install Peer Dependencies
-
-Make sure you have all required dependencies installed:
-
-```console
-npm install react react-dom @mui/material @mui/icons-material @emotion/react @emotion/styled
-```
+No additional installation steps needed. All dependencies are installed automatically.
 
 ### Step 2: Wrap Your App with ThemeProvider
 

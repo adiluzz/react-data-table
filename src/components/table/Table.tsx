@@ -25,7 +25,7 @@ const getFieldsKey = <T,>(fields: TableField<T>[]): string => {
 };
 
 
-const Table = <T,>({ data, fields, renderHeaders, depth = 0, selectable = false, selectedIds, onRowSelectionChange, onGroupSelectionChange }: TableProps<T>) => {
+const Table = <T,>({ data, fields, renderHeaders, depth = 0, selectable = false, selectedIds, onRowSelectionChange, onGroupSelectionChange, onSortChange }: TableProps<T>) => {
     const TableContext = getTableContext<T>();
     const [tableData, setTableData] = useState<BaseRow<T>[]>(data);
     const [curData, setCurData] = useState<BaseRow<T>[]>();
@@ -111,6 +111,7 @@ const Table = <T,>({ data, fields, renderHeaders, depth = 0, selectable = false,
                     selectedIds={selectedIds}
                     onRowSelectionChange={onRowSelectionChange}
                     onGroupSelectionChange={onGroupSelectionChange}
+                    onSortChange={onSortChange}
                 >
                     {curData && curData.map((row) => {
                         // Format the grouped value for display

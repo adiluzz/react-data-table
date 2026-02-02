@@ -19,6 +19,7 @@ export type DataTableProps<T> = {
     fields: TableField<T>[];
     selectable?: boolean;
     onSelectionChange?: (selectedIds: string[]) => void;
+    localStorageKey?: string; // If provided, table state will be saved to and loaded from localStorage
 };
 
 // Internal types for grouping (not exported in public API)
@@ -55,6 +56,7 @@ export type TableProps<T> = {
     selectedIds?: Set<string>;
     onRowSelectionChange?: (rowId: string, selected: boolean) => void;
     onGroupSelectionChange?: (groupRow: BaseRow<T>, selected: boolean) => void;
+    onSortChange?: (field: string, direction: SortDirection | undefined) => void;
 }
 
 export type GroupingHash<T> = {

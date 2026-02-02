@@ -1,6 +1,6 @@
 import { Table, TableBody, TableHead } from "@mui/material";
 import { ReactNode } from "react";
-import { BaseRow } from "../data_table/DataTable.interface";
+import { BaseRow, SortDirection } from "../data_table/DataTable.interface";
 import { TableWrapper } from "./Table.components";
 import TableHeaders from "./TableHeaders";
 
@@ -12,9 +12,10 @@ type TableConditionalProps<T> = {
     selectedIds?: Set<string>;
     onRowSelectionChange?: (rowId: string, selected: boolean) => void;
     onGroupSelectionChange?: (groupRow: BaseRow<T>, selected: boolean) => void;
+    onSortChange?: (field: string, direction: SortDirection | undefined) => void;
 };
 
-const TableConditional = <T,>({ children, renderHeaders, selectable, selectedIds, onRowSelectionChange, onGroupSelectionChange }: TableConditionalProps<T>) => {
+const TableConditional = <T,>({ children, renderHeaders, selectable, selectedIds, onRowSelectionChange, onGroupSelectionChange, onSortChange }: TableConditionalProps<T>) => {
     return <TableWrapper>
             <Table
                 sx={{
@@ -74,6 +75,7 @@ const TableConditional = <T,>({ children, renderHeaders, selectable, selectedIds
                         selectedIds={selectedIds}
                         onRowSelectionChange={onRowSelectionChange}
                         onGroupSelectionChange={onGroupSelectionChange}
+                        onSortChange={onSortChange}
                     />
                 </TableHead>
             }

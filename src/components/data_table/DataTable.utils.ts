@@ -1,5 +1,17 @@
-import { FilterOption } from "../filter_panel/FilterPanel.interface";
-import { BaseRow, Grouping, GroupingHash, TableField } from "./DataTable.interface";
+import { FilterOption, FilterResult } from "../filter_panel/FilterPanel.interface";
+import { BaseRow, Grouping, GroupingHash, SortDirection, TableField } from "./DataTable.interface";
+
+// Type for saved table state in localStorage
+export type SavedTableState = {
+    tableGroupings?: string[]; // Grouping fields as strings
+    searchTerm?: string;
+    selectedFilters?: FilterResult[];
+    selectedIds?: string[]; // Array of selected row IDs
+    sortState?: {
+        field: string;
+        direction: SortDirection;
+    };
+};
 
 export function hasFields<T>(input: keyof TableField<T>, fields: TableField<T>[]): boolean {
     return !!fields?.find(field => field[input]);
@@ -156,4 +168,30 @@ export function getAllRowIdsFromGroup<T>(groupRow: BaseRow<T>): string[] {
     }
     
     return ids;
+}
+
+/**
+ * Save table state to localStorage
+ */
+export function saveTableStateToLocalStorage(key: string, state: SavedTableState): void {
+    try {
+        localStorage.setItem(key, JSON.stringify(state));
+    } catch (error) {
+        console.warn('Failed to save table state to localStorage:', error);
+    }
+}
+
+/**
+ * Load table state from localStorage
+ */
+export function loadTableStateFromLocalStorage(key: string): SavedTableState | null {
+    try {
+        const saved = localStorage.getItem(key);
+        if (saved) {
+            return JSON.parse(saved) as SavedTableState;
+        }
+    } catch (error) {
+        console.warn('Failed to load table state from localStorage:', error);
+    }
+    return null;
 }
