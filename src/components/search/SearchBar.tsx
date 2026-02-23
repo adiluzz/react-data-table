@@ -1,26 +1,56 @@
 import ClearIcon from '@mui/icons-material/Clear';
 import SearchIcon from '@mui/icons-material/Search';
 import { IconButton } from "@mui/material";
-import { FC, useRef, useState } from "react";
+import { FC, useRef, useState, useMemo, useEffect } from "react";
 import { debounce } from "../data_table/DataTable.utils";
 import { SearchBarWrapper, SearchInput } from "./Search.components";
 
 type SearchBarProps = {
     onChange(val: string): void;
+    value?: string;
     debounceTime?: number;
     placeholder?: string;
 }
 
-const SearchBar: FC<SearchBarProps> = ({ onChange, debounceTime = 1000, placeholder = 'Search...' }) => {
+const SearchBar: FC<SearchBarProps> = ({ onChange, value = '', debounceTime = 1000, placeholder = 'Search...' }) => {
     const [focused, setFocused] = useState<boolean>(false);
+    const [localValue, setLocalValue] = useState<string>(value);
     const searchInputRef = useRef<HTMLInputElement>(null);
-    const debouncedChangedSearchTerm = debounce(onChange, debounceTime);
+    const onChangeRef = useRef(onChange);
+    
+    // Sync local value with prop value when it changes externally (e.g., from localStorage)
+    useEffect(() => {
+        setLocalValue(value);
+    }, [value]);
+    
+    // Keep onChangeRef up to date with the latest onChange
+    useEffect(() => {
+        onChangeRef.current = onChange;
+    }, [onChange]);
+    
+    // Memoize the debounced function to avoid recreating it on every render
+    const debouncedChangedSearchTerm = useMemo(() => {
+        return debounce((val: string) => {
+            onChangeRef.current(val);
+        }, debounceTime);
+    }, [debounceTime]);
+    
+    // Cleanup: cancel pending debounced calls on unmount or when debounceTime changes
+    useEffect(() => {
+        return () => {
+            debouncedChangedSearchTerm.cancel?.();
+        };
+    }, [debouncedChangedSearchTerm]);
 
     const inputChanged = (ev: React.ChangeEvent<HTMLInputElement>) => {
+        const newValue = ev.target.value;
+        // Update local state immediately so user sees what they're typing
+        setLocalValue(newValue);
+        
         if (debounceTime) {
-            debouncedChangedSearchTerm(ev.target.value);
+            debouncedChangedSearchTerm(newValue);
         } else {
-            onChange(ev.target.value);
+            onChange(newValue);
         }
     }
     return <SearchBarWrapper $focused={focused}>
@@ -32,6 +62,7 @@ const SearchBar: FC<SearchBarProps> = ({ onChange, debounceTime = 1000, placehol
             }}
         />
         <SearchInput
+            value={localValue}
             onChange={inputChanged}
             placeholder={placeholder}
             onFocus={() => {
@@ -43,13 +74,11 @@ const SearchBar: FC<SearchBarProps> = ({ onChange, debounceTime = 1000, placehol
             inputRef={searchInputRef}
         />
         {
-            searchInputRef?.current?.value !== '' &&
+            localValue !== '' &&
             <IconButton
                 size="small"
                 onClick={() => {
-                    if (searchInputRef.current) {
-                        searchInputRef.current.value = '';
-                    }
+                    setLocalValue('');
                     onChange('');
                 }}
                 sx={{

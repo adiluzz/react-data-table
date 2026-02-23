@@ -173,47 +173,49 @@ const FilterPanel: FC = () => {
                     placeholder="Add Filters..."
                 />
             </SelectFiltersButton>
-            <Paper
-                elevation={4}
-                sx={{
-                    position: 'absolute',
-                    top: '100%',
-                    left: 0,
-                    mt: 1,
-                    zIndex: 1300,
-                    overflow: 'hidden',
-                }}
-            >
-                <FilterSelectContainer 
-                    ref={filterContainerRef}
-                    $open={filtersOpen} 
-                    $time='0.2s'
-                    tabIndex={-1}
+            {filtersOpen && (
+                <Paper
+                    elevation={4}
+                    sx={{
+                        position: 'absolute',
+                        top: '100%',
+                        left: 0,
+                        mt: 1,
+                        zIndex: 1300,
+                        overflow: 'hidden',
+                    }}
                 >
-                    {
-                        filteredData?.map((filter, groupIndex) => {
-                            return <FilterGroup
-                                {...filter}
-                                key={filter.property}
-                                groupIndex={groupIndex}
-                                headerText={ctx?.getHeader(filter.property)?.headerText}
-                                focusedIndex={focusedIndex >= 0 && flatFilterOptions[focusedIndex]?.groupIndex === groupIndex 
-                                    ? flatFilterOptions[focusedIndex]?.optionIndex 
-                                    : -1}
-                                onFilterClicked={(clickedFilter) => {
-                                    ctx?.setSelectedFilters(prev => {
-                                        if (prev) {
-                                            return prev.concat([clickedFilter]);
-                                        } else {
-                                            return [clickedFilter];
-                                        }
-                                    })
-                                }}
-                            />
-                        })
-                    }
-                </FilterSelectContainer>
-            </Paper>
+                    <FilterSelectContainer 
+                        ref={filterContainerRef}
+                        $open={filtersOpen} 
+                        $time='0.2s'
+                        tabIndex={-1}
+                    >
+                        {
+                            filteredData?.map((filter, groupIndex) => {
+                                return <FilterGroup
+                                    {...filter}
+                                    key={filter.property}
+                                    groupIndex={groupIndex}
+                                    headerText={ctx?.getHeader(filter.property)?.headerText}
+                                    focusedIndex={focusedIndex >= 0 && flatFilterOptions[focusedIndex]?.groupIndex === groupIndex 
+                                        ? flatFilterOptions[focusedIndex]?.optionIndex 
+                                        : -1}
+                                    onFilterClicked={(clickedFilter) => {
+                                        ctx?.setSelectedFilters(prev => {
+                                            if (prev) {
+                                                return prev.concat([clickedFilter]);
+                                            } else {
+                                                return [clickedFilter];
+                                            }
+                                        })
+                                    }}
+                                />
+                            })
+                        }
+                    </FilterSelectContainer>
+                </Paper>
+            )}
         </Box>
         {
             ctx?.selectedFilters?.map(oneFilter => {

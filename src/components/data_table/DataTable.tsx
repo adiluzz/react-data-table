@@ -344,6 +344,7 @@ const DataTable = <T,>({ data, fields, selectable = false, onSelectionChange, lo
 					{
 						tableHasSearchableFields &&
 						<SearchBar
+							value={searchTerm}
 							onChange={(val) => {
 								setSearchTerm(val);
 							}}

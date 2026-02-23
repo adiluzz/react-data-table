@@ -128,7 +128,11 @@ export const debounce = <F extends (...args: Parameters<F>) => ReturnType<F>>(
         timeout = setTimeout(() => func(...args), waitFor);
     }
 
-    return debounced;
+    (debounced as typeof debounced & { cancel: () => void }).cancel = () => {
+        clearTimeout(timeout);
+    };
+
+    return debounced as typeof debounced & { cancel: () => void };
 };
 
 export const getUniqueValues = (data: never[], key: string): FilterOption[] => {
