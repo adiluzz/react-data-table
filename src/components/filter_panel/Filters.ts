@@ -1,11 +1,11 @@
 import { BaseRow, TableField } from "../data_table/DataTable.interface";
 
-export const optionFilter = <T>(property: string, value: string, data: BaseRow<T>[]):BaseRow<T>[] => {
+export const optionFilter = <T>(property: string, value: string, data: BaseRow<T>[]): BaseRow<T>[] => {
     return data?.filter(row => {
-        if (row[property as keyof typeof row]) {
-            return row[property as keyof typeof row] === value;
-        }
-    })
+        const cell = row[property as keyof typeof row];
+        if (cell == null && value !== '') return false;
+        return String(cell) === value;
+    }) ?? [];
 };
 
 export function searchFilter<T>(data: BaseRow<T>[], cols: TableField[], searchTerm: string) {

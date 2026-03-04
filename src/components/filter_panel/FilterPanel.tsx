@@ -24,8 +24,10 @@ const FilterPanel: FC = () => {
 
     const handleClick = useCallback((ev: MouseEvent) => {
         if (filtersOpen) {
-            const tar = ev.target as HTMLDivElement;
-            const avoidClick = tar?.className?.includes ? tar.className.includes(avoidCloseFiltersMenu) : false;
+            const el = ev.target as Element;
+            // Don't close when clicking inside the dropdown (option click must run first)
+            const insideDropdown = !!el?.closest?.('[data-filter-dropdown]');
+            const avoidClick = insideDropdown || (el?.className?.includes?.(avoidCloseFiltersMenu) ?? false);
             setFiltersOpen(avoidClick);
         }
     }, [filtersOpen]);
@@ -175,6 +177,7 @@ const FilterPanel: FC = () => {
             </SelectFiltersButton>
             {filtersOpen && (
                 <Paper
+                    data-filter-dropdown
                     elevation={4}
                     sx={{
                         position: 'absolute',
@@ -208,7 +211,8 @@ const FilterPanel: FC = () => {
                                             } else {
                                                 return [clickedFilter];
                                             }
-                                        })
+                                        });
+                                        setFiltersOpen(false);
                                     }}
                                 />
                             })

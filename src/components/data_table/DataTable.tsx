@@ -260,11 +260,11 @@ const DataTable = <T,>({ data, fields, selectable = false, onSelectionChange, lo
 	}, [data, selectable, convertToBaseRow]);
 
 	
-	// Separate effect for data processing - only depends on stable field key, not function references
+	// Separate effect for data processing - re-run when data, fields, groupings or selected filters change
 	useEffect(() => {
 		const baseRowData = convertToBaseRow(data);
 		groupTableData(baseRowData);
-	}, [data, currentFieldsKey, groupTableData, tableGroupings, convertToBaseRow]);
+	}, [data, currentFieldsKey, groupTableData, tableGroupings, convertToBaseRow, selectedFilters]);
 
 	// Debounced save to localStorage - only save once after all changes settle
 	const saveTimeoutRef = useRef<NodeJS.Timeout | null>(null);
