@@ -9,7 +9,8 @@ import Table from '../table/Table';
 import { BottomPanelWrapper } from "./DataTable.components";
 import DataTableContext from './DataTable.context';
 import { BaseRow, DataTableProps, Grouping, TableField } from './DataTable.interface';
-import { getAllRowIdsFromGroup, getUniqueValues, groupData, hasFields, loadTableStateFromLocalStorage, saveTableStateToLocalStorage } from './DataTable.utils';
+import { defaultPageSizeOptions } from './DataTable.const';
+import { getAllRowIdsFromGroup, getUniqueValues, getValidPageSize, groupData, hasFields, loadTableStateFromLocalStorage, saveTableStateToLocalStorage } from './DataTable.utils';
 
 // Create a stable reference for fields by comparing only non-function properties
 // This prevents infinite loops when renderComponent functions are new references
@@ -29,7 +30,7 @@ const getFieldsKey = <T,>(fields: TableField<T>[]): string => {
 };
 
 
-const DataTable = <T,>({ data, fields, selectable = false, onSelectionChange, localStorageKey }: DataTableProps<T>) => {
+const DataTable = <T,>({ data, fields, selectable = false, onSelectionChange, localStorageKey, defaultPageSize }: DataTableProps<T>) => {
 	// Load initial state from localStorage if key is provided
 	const savedState = useMemo(() => {
 		if (localStorageKey) {
@@ -50,6 +51,10 @@ const DataTable = <T,>({ data, fields, selectable = false, onSelectionChange, lo
 	);
 	const [selectedIds, setSelectedIds] = useState<Set<string>>(
 		new Set(savedState?.selectedIds || [])
+	);
+
+	const [pageSize, setPageSize] = useState<number>(() =>
+		getValidPageSize(defaultPageSize, defaultPageSizeOptions, defaultPageSizeOptions[0])
 	);
 	
 	// Use refs to store the latest fields and a stable key to detect actual changes
@@ -364,6 +369,8 @@ const DataTable = <T,>({ data, fields, selectable = false, onSelectionChange, lo
 					onRowSelectionChange={selectable ? handleRowSelectionChange : undefined}
 					onGroupSelectionChange={selectable ? handleGroupSelectionChange : undefined}
 					onSortChange={handleSortChange}
+					pageSize={pageSize}
+					setPageSize={setPageSize}
 				/>
 			}
 		</DataTableContext.Provider>

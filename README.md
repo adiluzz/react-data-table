@@ -198,12 +198,14 @@ There are more examples in the src/examples directory.
 
 ## Props
 
-This table currently has 4 props:
+This table currently has 6 props:
 
 1. <code>data</code> - your data.
 2. <code>fields</code> - your fields. This where most of the configuration is made.
 3. <code>selectable</code> - `boolean` (optional) - Enables row selection. When `true`, adds a checkbox column as the first column.
 4. <code>onSelectionChange</code> - `(selectedIds: string[]) => void` (optional) - Callback function that is called whenever the selection changes. Receives an array of selected row IDs.
+5. <code>localStorageKey</code> - `string` (optional) - If provided, table state (groupings, search, filters, selection, sort) is saved to and restored from localStorage under this key.
+6. <code>defaultPageSize</code> - `number` (optional) - Default rows per page. Must be one of the table page size options (10, 25, 50, 100). If the value is not in this list, a console error is logged and the first option (10) is used; the table still renders.
 
 ### Row Selection
 

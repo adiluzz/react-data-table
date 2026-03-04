@@ -20,6 +20,8 @@ export type DataTableProps<T> = {
     selectable?: boolean;
     onSelectionChange?: (selectedIds: string[]) => void;
     localStorageKey?: string; // If provided, table state will be saved to and loaded from localStorage
+    /** Default rows per page. Must be one of the table page size options (e.g. 10, 25, 50, 100). If invalid, a console error is logged and the first option is used. */
+    defaultPageSize?: number;
 };
 
 // Internal types for grouping (not exported in public API)
@@ -57,6 +59,9 @@ export type TableProps<T> = {
     onRowSelectionChange?: (rowId: string, selected: boolean) => void;
     onGroupSelectionChange?: (groupRow: BaseRow<T>, selected: boolean) => void;
     onSortChange?: (field: string, direction: SortDirection | undefined) => void;
+    /** When provided (by DataTable), page size is controlled and persisted in localStorage */
+    pageSize?: number;
+    setPageSize?: React.Dispatch<React.SetStateAction<number>>;
 }
 
 export type GroupingHash<T> = {

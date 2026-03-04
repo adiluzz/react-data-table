@@ -30,6 +30,7 @@ function DataTableWithGrouping() {
 			fields={mockTableFields}
 			selectable={true}
 			localStorageKey="react-turbo-table-example"
+			defaultPageSize={100}
 			onSelectionChange={(ids) => {
 				console.log('Selected IDs:', ids);
 			}}

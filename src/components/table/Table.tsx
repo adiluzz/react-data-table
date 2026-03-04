@@ -25,7 +25,7 @@ const getFieldsKey = <T,>(fields: TableField<T>[]): string => {
 };
 
 
-const Table = <T,>({ data, fields, renderHeaders, depth = 0, selectable = false, selectedIds, onRowSelectionChange, onGroupSelectionChange, onSortChange }: TableProps<T>) => {
+const Table = <T,>({ data, fields, renderHeaders, depth = 0, selectable = false, selectedIds, onRowSelectionChange, onGroupSelectionChange, onSortChange, pageSize: pageSizeProp, setPageSize: setPageSizeProp }: TableProps<T>) => {
     const TableContext = getTableContext<T>();
     const [tableData, setTableData] = useState<BaseRow<T>[]>(data);
     const [curData, setCurData] = useState<BaseRow<T>[]>();
@@ -61,7 +61,9 @@ const Table = <T,>({ data, fields, renderHeaders, depth = 0, selectable = false,
     }, [columnsState]); // Only recalculate when structure changes
 
     const [page, setPage] = useState<number>(0);
-    const [pageSize, setPageSize] = useState<number>(defaultPageSizeOptions[0]);
+    const [pageSizeLocal, setPageSizeLocal] = useState<number>(defaultPageSizeOptions[0]);
+    const pageSize = pageSizeProp ?? pageSizeLocal;
+    const setPageSize = setPageSizeProp ?? setPageSizeLocal;
 
     const setTableDataAction = useCallback((rows: BaseRow<T>[]) => {
         setTableData(rows);

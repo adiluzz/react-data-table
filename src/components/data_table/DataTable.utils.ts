@@ -1,5 +1,6 @@
 import { FilterOption, FilterResult } from "../filter_panel/FilterPanel.interface";
 import { BaseRow, Grouping, GroupingHash, SortDirection, TableField } from "./DataTable.interface";
+import { defaultPageSizeOptions } from "./DataTable.const";
 
 // Type for saved table state in localStorage
 export type SavedTableState = {
@@ -12,6 +13,22 @@ export type SavedTableState = {
         direction: SortDirection;
     };
 };
+
+/**
+ * Returns a valid page size. If the value is not in the allowed options, logs a console error and returns the fallback.
+ */
+export function getValidPageSize(
+    value: number | undefined,
+    options: number[] = defaultPageSizeOptions,
+    fallback: number = defaultPageSizeOptions[0]
+): number {
+    if (value == null) return fallback;
+    if (options.includes(value)) return value;
+    console.error(
+        `[react-turbo-table] defaultPageSize ${value} is not in the table page size options [${options.join(', ')}]. Using ${fallback}.`
+    );
+    return fallback;
+}
 
 export function hasFields<T>(input: keyof TableField<T>, fields: TableField<T>[]): boolean {
     return !!fields?.find(field => field[input]);
