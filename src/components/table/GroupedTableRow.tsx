@@ -19,10 +19,12 @@ type GroupedTableRowProps<T> = {
     selectedIds?: Set<string>;
     onRowSelectionChange?: (rowId: string, selected: boolean) => void;
     onGroupSelectionChange?: (groupRow: BaseRow<T>, selected: boolean) => void;
+    pageSize?: number;
+    setPageSize?: React.Dispatch<React.SetStateAction<number>>;
 }
 
 const GroupedTableRow = <T,>(
-    { row, value, depth, fields, selectable, selectedIds, onRowSelectionChange, onGroupSelectionChange }: GroupedTableRowProps<T>) => {
+    { row, value, depth, fields, selectable, selectedIds, onRowSelectionChange, onGroupSelectionChange, pageSize, setPageSize }: GroupedTableRowProps<T>) => {
     const [open, setOpen] = useState<boolean>(false);
     const ctx = useDataTableContext();
 
@@ -200,6 +202,8 @@ const GroupedTableRow = <T,>(
                                 selectedIds={selectedIds}
                                 onRowSelectionChange={onRowSelectionChange}
                                 onGroupSelectionChange={onGroupSelectionChange}
+                                pageSize={pageSize}
+                                setPageSize={setPageSize}
                             />
                         </Box>
                     </Box>

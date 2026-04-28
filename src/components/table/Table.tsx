@@ -177,6 +177,8 @@ const Table = <T,>({ data, fields, renderHeaders, depth = 0, selectable = false,
                                 selectedIds={selectedIds}
                                 onRowSelectionChange={onRowSelectionChange}
                                 onGroupSelectionChange={onGroupSelectionChange}
+                                pageSize={pageSize}
+                                setPageSize={setPageSize}
                             />
                         ) : (
                             <TableRowWrapper
